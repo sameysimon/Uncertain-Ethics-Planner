@@ -6,8 +6,8 @@ An abstract world environment has been made as a template for the below concepts
 
 ### MDP Class
 * Environments are specified as a Markov Decision Process containing states, actions and a transition function.
-* State objects are instantiated as the enviroment is explored, triggered by calling `mdp.getActionSuccessors(state, action)`.
-* State successors and their probabilties are defined by appending rule methods to the list `mdp.rules`.
+* State objects are instantiated as the environment is explored, triggered by calling `mdp.getActionSuccessors(state, action)`.
+* State successors and their probabilities are defined by appending rule methods to the list `mdp.rules`.
 * Unlike the traditional MDP formalism, this class has no reward function.
 
 #### Singleton-Moral MDP
@@ -17,7 +17,7 @@ An abstract world environment has been made as a template for the below concepts
 
 #### Multi-Moral MDP
 
-* Multi-Moral MDPs contain moral theories in a lexicographic order, `mm_mdp.Theories`. Judgements from lower indexed theories are considered over any judgement from a greater indexed theory, no matter the extremity/probability of the judgement.
+* Multi-Moral MDPs contain moral theories in a lexicographic order, `mm_mdp.Theories`. Judgments from lower indexed theories are considered over any judgement from a greater indexed theory, no matter the extremity/probability of the judgement.
 * * Concrete in `AbstractMMMDP`.
 
 #### Moral SSPs
@@ -32,7 +32,7 @@ Abstract moral theories contain most methods. For each environment, a concrete s
 ## Planner
 
 Currently:
-* MMMDP hypothetical retrospection heursitic Find-and-Revise
+* MMMDP hypothetical retrospection heuristic Find-and-Revise
 * An exhaustive multi moral theory hypothetical retrospection. (compares every policy) (incomplete)
 * Singleton moral theory Value Iteration (untested)
 
