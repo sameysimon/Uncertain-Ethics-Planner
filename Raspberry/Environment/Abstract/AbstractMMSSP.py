@@ -104,7 +104,7 @@ class AbstractWorld(MM_SSP):
             l="t={tile}\nu={utility}+v({utilValue})".format(
                 tile=self.states[s].props['tile'], 
                 utility=self.states[s].props['utility'],
-                utilValue=solution.V[s]['utility']
+                utilValue=solution.V['utility'][s]
                 )
             stateLabels.append(l)        
 

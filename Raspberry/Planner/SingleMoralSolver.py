@@ -34,9 +34,7 @@ class Solver:
         actions = problem.getActions(state)
         for a in actions:
             successors = problem.getActionSuccessors(state, a)
-            estimates = [E[suc.targetState.id] for suc in successors]
-            probabilities = [suc.probability for suc in successors]
-        l.append(problem.Theory.EstimateUnion(problem.Theory.Judge(state),estimates,probabilities))
+            l.append(problem.Theory.Gather(successors, E))
         return l
 
 

@@ -1,6 +1,7 @@
 # Singleton Moral Markov Decision Process 
 from Raspberry.Environment.GeneralMDP import MDP
 from Raspberry.Environment.Result import AttackResult
+from Raspberry.Environment.Theory.MoralTheory import MoralTheory
 from abc import ABC, abstractmethod 
 import numpy as np
 
@@ -14,8 +15,9 @@ class MM_MDP(MDP, ABC):
         # Returns:
         #   Expectation (dict) Returns a expected moral value on a successor of action.
         expect = self.EmptyValuation()
+        t:MoralTheory
         for t in self.Theories:
-            expect[t.tag] = t.EstimateUnion(t.JudgeState(state), [V[successor.targetState.id][t.tag]], [1], self)
+            expect[t.tag] = t.Gather([successor], V[t.tag],probabilities=[1])
         return expect
 
     def ActionExpectation(self, state, V, action=0, successors=0):
@@ -26,11 +28,7 @@ class MM_MDP(MDP, ABC):
 
         expect = self.EmptyValuation()
         for t in self.Theories:
-            e, p = [], []
-            for s in successors:
-                e.append(V[s.targetState.id][t.tag])
-                p.append(s.probability)
-            expect[t.tag] = t.EstimateUnion(t.JudgeState(state), e, p, self)
+            expect[t.tag] = t.Gather(successors, V[t.tag])
         return expect
 
     def ManyPathsExpectation(self, state, paths, probabilities):
@@ -63,12 +61,15 @@ class MM_MDP(MDP, ABC):
                 return r, t
         return AttackResult.DRAW, None
 
+
+
     def EmptyValuation(self):
         v = {}
         for t in self.Theories:
             v[t.tag] = t.EmptyEstimate()
         return v
-
+    # Get it now lmao
+    # HERE!!!!!!
     def getStateHeuristic(self, state: MDP.State) -> dict:
         h = {}
         for t in self.Theories:
@@ -79,19 +80,11 @@ class MM_MDP(MDP, ABC):
     def setValuation(self, V, state, action):
         successors = self.getActionSuccessors(state, action)
         for t in self.Theories:
-            e, p = [], []
-            for s in successors:
-                e.append(V[s.targetState.id][t.tag])
-                p.append(s.probability)
-            V[state.id][t.tag] = t.EstimateUnion(t.JudgeState(state), e, p, self)
-        V[state.id]['reward'] = self.Reward(state, action) + sum([s.probability*V[s.targetState.id]['reward']*self.discount for s in successors])
+            V[t.tag][state.id] = t.Gather(successors, V[t.tag])
 
     def isConverged(self, V, V_, epsilon=0.001):
         for t in self.Theories:
-            if not t.IsConverged(V, V_, epsilon):
+            if not t.IsConverged(V[t.tag], V_[t.tag], epsilon):
                 return False
-
-        v = np.array([s['reward'] for s in V])
-        v_ = np.array([s['reward'] for s in V_])
-
-        return np.linalg.norm(v_ - v, np.inf) < epsilon
+        return True
+        

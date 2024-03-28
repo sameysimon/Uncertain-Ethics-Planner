@@ -2,7 +2,9 @@ import copy
 
 class BestSubGraph:
     def __init__(self, startStateIndex, ssp, record=True):
-        self.V = [ssp.getStateHeuristic(ssp.states[startStateIndex])]
+        self.V={}
+        self.appendToV(ssp.getStateHeuristic(ssp.states[startStateIndex]))
+
         self.pi = {}
         self.states = [startStateIndex]
         self.stateSuccessors = {}
@@ -11,6 +13,10 @@ class BestSubGraph:
         self.ValueHistory = []
         self.PolicyHistory = []
 
+
+    def appendToV(self, theoryValues:dict):
+        for tag, value in theoryValues.items():
+            self.V.setdefault(tag,[]).append(value)
 
     def getUnexpandedStatesInBPSG(self, GSSP):
         x = []
@@ -48,7 +54,6 @@ class BestSubGraph:
             self.ValueHistory.append(copy.deepcopy(self.V))
             self.PolicyHistory.append(copy.deepcopy(self.pi))
 
-
     def __addBestStates(self, GSSP, stateInd):
         state = GSSP.states[stateInd]
         self.states.append(stateInd)
@@ -72,16 +77,9 @@ class BestSubGraph:
     def updateValuation(self, GSSP, newStates):
         if newStates==None:
             return
-        for i in range(len(self.V), len(self.V) + len(newStates)):
-            h = GSSP.getStateHeuristic(GSSP.states[i])
-            self.V.append(h)
-
-    def getFloatValuation(self):
-        values = []
-        for valuation in self.V:
-            for key, expectation in valuation.items():
-                values.append(float(expectation))
-        return values
+        vStates = len(self.V[list(self.V.keys())[0]])
+        for i in range(vStates, vStates + len(newStates)):
+            self.appendToV(GSSP.getStateHeuristic(GSSP.states[i]))
 
     def isProper(self, GSSP):
         endStates = filter(lambda s : s not in self.stateSuccessors.keys() or self.stateSuccessors[s]==[], self.states)
@@ -96,7 +94,6 @@ class BestSubGraph:
 
         # Conditions satisfied. Policy is proper.
         return True
-
 
     def getHistoryLength(self):
         return len(self.ValueHistory)

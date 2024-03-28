@@ -10,10 +10,11 @@ class MDP(ABC):
             self.ancestors = []
             
     class Successor:
-        def __init__(self, _sourceState, _targetState, _probability):
+        def __init__(self, _sourceState, _targetState, _probability, _action):
             self.sourceState = _sourceState
             self.targetState = _targetState
             self.probability = _probability
+            self.action = _action
 
     def __init__(self):
         self.states = [] # List of explicit instantiated states
@@ -53,7 +54,7 @@ class MDP(ABC):
         
         state.successors[action] = []
         for targetProperties, probability in successorsValues:
-            successorState = MDP.Successor(state, self.stateFactory(targetProperties), probability)
+            successorState = MDP.Successor(state, self.stateFactory(targetProperties), probability, action)
             state.successors[action].append(successorState)
         return state.successors[action]
 

@@ -27,7 +27,7 @@ def test_basicSolve():
     d['cost']=-1
     ssp = AbstractWorld(setup=d)
     # Make image of tree
-    ssp.VisualiseCompleteGraph('abstractTest')
+    #ssp.VisualiseCompleteGraph('abstractTest')
     #solver = Exhaustive()
     #bpsg = solver.solve(ssp)
     

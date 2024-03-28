@@ -132,7 +132,7 @@ def test_random_long():
     ssp = AbstractWorld(setup=setup)
     solver = Solver()
     bpsg = solver.solve(ssp)
-    
+    print()
 
 
 

@@ -79,7 +79,7 @@ class Solver:
         for action in ethicalActions:
             r = ssp.Reward(state, action)
             for successor in ssp.getActionSuccessors(state, action):
-                r += successor.probability * bpsg.V[state.id]['reward']
+                r += successor.probability * bpsg.V['reward'][state.id]
             reward.append(r)
         bestIdx = np.argmax(reward)
         bestAction = ethicalActions[bestIdx]
