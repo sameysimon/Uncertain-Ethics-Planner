@@ -1,41 +1,17 @@
-from Raspberry.Environment.MoralSSP import MM_SSP
-from Raspberry.Environment.Abstract.Utilitarian import Utilitarian
-from Raspberry.Environment.Abstract.Tile import Tile
-
 import copy
 import pygraphviz
 
-class AbstractWorld(MM_SSP):
-    def __init__(self, setup=None):
-        super().__init__()
+class AbstractBase(object):
+
+    def __init__(self, setup) -> None:
+        super(AbstractBase, self).__init__()
         self.world = {}
         if setup:
             self.world = setup
         else:
-            self.world = AbstractWorld.defaultSetup()
-
-        self.Theories = [Utilitarian(), Tile()] # Set some ethical theories
+            self.world = AbstractBase.defaultSetup()
         self.stateFactory({'tile':0, 'utility':self.world['utilities'][0]}) # Create at least one initial state
-        self.rules = [AbstractWorld.GraphMove, AbstractWorld.UtilityResult] # Add a transition rule
-        self.discount = 0.9
-
-
-    # ****
-    # Action, Reward, Heuristic
-    # ****
-    def getActions(self, state:MM_SSP.State) -> list:
-        return self.world['actions'][state.props['tile']]
-
-    def Reward(self, state: MM_SSP.State, action: str) -> float:
-        return self.world['cost']
-
-    def isGoal(self, state: MM_SSP.State):
-        return state.props['tile'] in self.world['goalTiles']
-
-    def getStateHeuristic(self, state: MM_SSP.State) -> dict:
-        h = super().getStateHeuristic(state)
-        h['reward'] = abs(4 - state.props['tile'])*-1
-        return h
+        self.rules = [AbstractBase.GraphMove, AbstractBase.UtilityResult] # Add a transition rule
 
 
     # ****

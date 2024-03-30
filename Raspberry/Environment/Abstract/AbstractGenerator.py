@@ -1,4 +1,4 @@
-from Raspberry.Environment.Abstract.AbstractSMMDP import AbstractWorld
+from Raspberry.Environment.Abstract.Abstract import AbstractBase
 import numpy as np
 import json
 import copy
@@ -88,17 +88,17 @@ def randomTreeSetup(depth=2, maxActionFactor=2, maxBranchFactor=2, seed=1234, go
     return {'utilities':u, 'stateSpace':ss, 'cost':-1, 'actions':acts, 'goalTiles':goals}
         
 
-
+""" OBSOLETE, REFACTOR!
 def setupFunctionFromFile(fileName):
     file = open(fileName+'.json','r')
     t = file.read()
     params = json.loads(t)
     def setup():
-        AbstractWorld.cost=params['cost']
-        AbstractWorld.goalTiles=params['goalTiles']
-        AbstractWorld.actions = params['actions']
-        AbstractWorld.utilities = params['utilities']
-        AbstractWorld.stateSpace = params['stateSpace']
+        AbstractBase.cost=params['cost']
+        AbstractBase.goalTiles=params['goalTiles']
+        AbstractBase.actions = params['actions']
+        AbstractBase.utilities = params['utilities']
+        AbstractBase.stateSpace = params['stateSpace']
 
     return setup
 
@@ -106,3 +106,4 @@ def saveSetupParams(fileName, params):
     with open(fileName+'.json', 'w') as f:
         json.dump(params, f)
     
+"""

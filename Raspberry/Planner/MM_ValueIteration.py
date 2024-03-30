@@ -1,32 +1,36 @@
-# Value Iteration Implementation to solver a Singleton Moral MDP
+# Value Iteration Implementation to solver a Multi-Moral MDP with Hypothetical Retrospection
 
 from Raspberry.Environment.Result import AttackResult
 from Raspberry.Planner.Hypothetical import Retrospection
-from Raspberry.Environment.SingletonMoralMDP import SM_MDP
+from Raspberry.Environment.MultiMoralMDP import MM_MDP
 import numpy as np
 import copy
 
 class Solver:
     updateCount=0
 
-
-    def solve(solver, problem:SM_MDP) -> dict:
+    def solve(solver, problem:MM_MDP) -> dict:
         if not problem.makeAllStatesExplicit():
             print('Problem is too large to be solved with Value Iteration.')
             return {}
 
         converged=False
         i=0
-        E = []*len(problem.states)
+        E = {}
+        for s in problem.states:
+            Solver.appendToE(E, problem.EmptyValuation())
+        pi={}
         while not converged:
             E_ = copy.deepcopy(E)
             for s in problem.states:
-                l = solver.actionEstimates(s,problem, E)
-                E[s.id] = solver.preferred(l,problem.Theory)
-            converged = problem.Theory.isConverged(E, E_)
-        pi={}
-        for s in problem.states:
-            pi[s.id] = problem.getActions(s)[solver.idxPreferred(l, problem.Theory)]
+                actions = problem.getActions(s)
+                actionSuccessors = [problem.getActionSuccessors(s,a) for a in actions]
+                nonAcceptability = Retrospection.Retrospect(problem, s, actions, actionSuccessors, E)
+                bestAction = actions[np.argmin(nonAcceptability)]
+                pi[s.id]=bestAction
+                problem.setValuation(E,s,bestAction)
+            converged = problem.isConverged(E, E_)
+        
         return pi
 
     def actionEstimates(solver, state, problem, E):
@@ -39,7 +43,6 @@ class Solver:
 
 
     def preferred(solver, l, theory):
-        
         return l[solver.argPreferred(l, theory)]
 
     def idxPreferred(solver, l, theory):
@@ -48,3 +51,7 @@ class Solver:
             if theory.CompareEstimates(l[argMax], l[eIdx])==AttackResult.REVERSE:
                 argMax = eIdx
         return argMax
+
+    def appendToE(E, theoryValues:dict):
+        for tag, value in theoryValues.items():
+            E.setdefault(tag,[]).append(value)

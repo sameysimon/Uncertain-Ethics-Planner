@@ -57,10 +57,6 @@ class MDP(ABC):
             successorState = MDP.Successor(state, self.stateFactory(targetProperties), probability, action)
             state.successors[action].append(successorState)
         return state.successors[action]
-
-    @abstractmethod
-    def getStateHeuristic(self, state: State) -> int:
-        return 10
     
     @abstractmethod
     def getActions(self, state:State) -> list:

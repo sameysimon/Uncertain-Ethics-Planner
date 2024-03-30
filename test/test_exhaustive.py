@@ -1,4 +1,4 @@
-from Raspberry.Environment.Abstract.AbstractMMSSP import AbstractWorld
+from Raspberry.Environment.Abstract.AbstractProblems import AbstractWorld_MM_SSP
 import Raspberry.Environment.Abstract.AbstractGenerator as ag
 from Raspberry.Planner.ExhaustiveSolver import Exhaustive
 
@@ -25,7 +25,7 @@ def test_basicSolve():
     d['utilities']= {0:0, 1:0, 2:0, 3:0,4:0,5:0,6:0,7:0,8:0, 9:0},
     d['stateSpace']=s,
     d['cost']=-1
-    ssp = AbstractWorld(setup=d)
+    ssp = AbstractWorld_MM_SSP(setup=d)
     # Make image of tree
     #ssp.VisualiseCompleteGraph('abstractTest')
     #solver = Exhaustive()

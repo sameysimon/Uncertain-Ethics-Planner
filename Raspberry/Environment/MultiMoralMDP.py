@@ -10,6 +10,7 @@ class MM_MDP(MDP, ABC):
         
     def __init__(self):
         super().__init__()
+        self.Theories = []
 
     def SuccessorExpectation(self, V, state, action, successor):
         # Returns:
@@ -61,15 +62,12 @@ class MM_MDP(MDP, ABC):
                 return r, t
         return AttackResult.DRAW, None
 
-
-
     def EmptyValuation(self):
         v = {}
         for t in self.Theories:
             v[t.tag] = t.EmptyEstimate()
         return v
-    # Get it now lmao
-    # HERE!!!!!!
+
     def getStateHeuristic(self, state: MDP.State) -> dict:
         h = {}
         for t in self.Theories:
@@ -81,6 +79,7 @@ class MM_MDP(MDP, ABC):
         successors = self.getActionSuccessors(state, action)
         for t in self.Theories:
             V[t.tag][state.id] = t.Gather(successors, V[t.tag])
+        return V
 
     def isConverged(self, V, V_, epsilon=0.001):
         for t in self.Theories:

@@ -1,5 +1,5 @@
-from Raspberry.Environment.Abstract.AbstractMMSSP import AbstractWorld
-from Raspberry.Planner.MultiMoralSolver import Solver
+from Raspberry.Environment.Abstract.AbstractProblems import AbstractWorld_MM_SSP
+from Raspberry.Planner.MM_FindRevise import Solver
 import Raspberry.Environment.Abstract.AbstractGenerator as ag
 
 def test_crashTest():
@@ -10,7 +10,7 @@ def test_crashTest():
     d['utilities'] = [0,1,2,3,4]
 
     # Initialise state space successor dicts
-    d['stateSpace'] = [{}] * 4
+    d['stateSpace'] = [{},{},{},{}]
     
     # List of successor (tile,probability) for each state-action
     d['stateSpace'][0]['A'] = [(1,1)]
@@ -21,7 +21,7 @@ def test_crashTest():
 
     d['stateSpace'][3]['A'] = []
 
-    ssp = AbstractWorld(setup=d)
+    ssp = AbstractWorld_MM_SSP(setup=d)
     solver = Solver()
     bpsg = solver.solve(ssp)
 
@@ -39,8 +39,6 @@ def test_DoubleAction():
 
     # Initialise state space successor dicts
     d['stateSpace'] = [{} for i in range(0,5)]
-
-
     
     # List of successor (tile,probability) for each state-action
     d['stateSpace'][0]['A'] = [(1,1)]
@@ -50,7 +48,7 @@ def test_DoubleAction():
     d['stateSpace'][2]['A'] = [(4,1)]
 
 
-    ssp = AbstractWorld(setup=d)
+    ssp = AbstractWorld_MM_SSP(setup=d)
     solver = Solver()
     bpsg = solver.solve(ssp)
     ssp.VisualiseCompleteGraph('test/completeDouble')
@@ -88,7 +86,7 @@ def test_ProbabilisticDoubleAction():
     d['stateSpace'][4]['A'] = [(8,1)]
 
 
-    ssp = AbstractWorld(setup=d)
+    ssp = AbstractWorld_MM_SSP(setup=d)
     solver = Solver()
     bpsg = solver.solve(ssp)
     ssp.VisualiseCompleteGraph('test/completeProbDouble')
@@ -101,19 +99,19 @@ def test_random_medium():
     # maximum 3 actions per state, 3 branches per action, max depth=3
     # Trial 1
     setup = ag.randomTreeSetup(maxBranchFactor=3, maxActionFactor=3, depth=3, seed=10101)
-    ssp = AbstractWorld(setup=setup)
+    ssp = AbstractWorld_MM_SSP(setup=setup)
     solver = Solver()
     bpsg = solver.solve(ssp)
 
     # Trial 2
     setup = ag.randomTreeSetup(maxBranchFactor=3, maxActionFactor=3, depth=3, seed=20202)
-    ssp = AbstractWorld(setup=setup)
+    ssp = AbstractWorld_MM_SSP(setup=setup)
     solver = Solver()
     bpsg = solver.solve(ssp)
 
     # Trial 3
     setup = ag.randomTreeSetup(maxBranchFactor=3, maxActionFactor=3, depth=3, seed=854543)
-    ssp = AbstractWorld(setup=setup)
+    ssp = AbstractWorld_MM_SSP(setup=setup)
     solver = Solver()
     bpsg = solver.solve(ssp)
 
@@ -121,7 +119,7 @@ def test_random_wide():
     # maximum 3 actions per state, 5 branches per action, max depth=3
     # 3^(5*3)= 14M max total states
     setup = ag.randomTreeSetup(maxBranchFactor=5, maxActionFactor=3, depth=3, seed=10101)
-    ssp = AbstractWorld(setup=setup)
+    ssp = AbstractWorld_MM_SSP(setup=setup)
     solver = Solver()
     bpsg = solver.solve(ssp)
 
@@ -129,7 +127,7 @@ def test_random_long():
     # maximum 3 actions per state, 3 branches per action, max depth=5
     # 5^(3*3)= 1.9M max total states
     setup = ag.randomTreeSetup(maxBranchFactor=3, maxActionFactor=3, depth=5, seed=10101)
-    ssp = AbstractWorld(setup=setup)
+    ssp = AbstractWorld_MM_SSP(setup=setup)
     solver = Solver()
     bpsg = solver.solve(ssp)
     print()
