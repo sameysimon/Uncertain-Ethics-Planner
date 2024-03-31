@@ -1,24 +1,23 @@
-from Raspberry.Environment.GeneralMDP import MDP
+from Raspberry.Environment.MultiMoralMDP import MM_MDP
 from Raspberry.Environment.Result import AttackResult
 from Raspberry.Planner.Solution import BestSubGraph
 import numpy as np
 
+# Currently, only works on Multi-Moral MM_MDPs.
 class Retrospection:
  
-    def Retrospect(ssp:MDP, state:MDP.State, actions:list, actionSuccessors:list, V=None):
+    def RetrospectPaths(ssp:MM_MDP,policyPaths:list):
+        return 
+
+    def Retrospect(ssp:MM_MDP, state:MM_MDP.State, actions:list, actionSuccessors:list, V):
         attackedArgs = [set()] * len(actions)
         for i in range(len(actions)):
             oneAction, oneSuccessors = actions[i], actionSuccessors[i]
             for j in range(i+1, len(actions)):
                 twoAction, twoSuccessors = actions[j], actionSuccessors[j]
-                if V is None:
-                    oneAttacked, twoAttacked = Retrospection.__ArgumentPathPair(ssp, oneSuccessors, twoSuccessors)
-                    attackedArgs[i].union(oneAttacked)
-                    attackedArgs[j].union(twoAttacked)
-                else:
-                    oneAttacked, twoAttacked = Retrospection.__ArgumentPair(ssp,V,state,oneAction,oneSuccessors,twoAction,twoSuccessors)
-                    attackedArgs[i]=attackedArgs[i].union(oneAttacked)
-                    attackedArgs[j]=attackedArgs[j].union(twoAttacked)
+                oneAttacked, twoAttacked = Retrospection.__ArgumentPair(ssp,V,state,oneAction,oneSuccessors,twoAction,twoSuccessors)
+                attackedArgs[i]=attackedArgs[i].union(oneAttacked)
+                attackedArgs[j]=attackedArgs[j].union(twoAttacked)
                     
         nonAcceptability = []
         for attackedSet in attackedArgs:
@@ -34,30 +33,28 @@ class Retrospection:
         return p
 
     
-    def __ArgumentPair(ssp:MDP, V:list, state:MDP.State, oneAction, oneSuccessors, twoAction, twoSuccessors):
+    def __ArgumentPair(ssp:MM_MDP, V:list, state:MM_MDP.State, oneAction, oneSuccessors, twoAction, twoSuccessors):
         oneAttacked, twoAttacked = set(), set()
 
         # Critical Question 2: Check for Defence (compare actions)
         oneExpectation = ssp.ActionExpectation(state, V, successors=oneSuccessors)
         twoExpectation = ssp.ActionExpectation(state, V, successors=twoSuccessors)
-        result, t = ssp.CompareExpectations(oneExpectation, twoExpectation)
+        result, tClass = ssp.CompareExpectations(oneExpectation, twoExpectation)
 
         # 0 indicates the argument is NOT vulnerable to attack; 1 means it is!
         oneActVul, twoActVul = Retrospection.vulnerable(result)
-        oneVulnerable = [oneActVul]*len(oneSuccessors)
-        twoVulnerable = [twoActVul]*len(twoSuccessors)
 
         # Critical Question 1: Check for inequality (compare arguments/successors)
         for oneIdx, oneSuccessor in enumerate(oneSuccessors):
             for twoIdx, twoSuccessor in enumerate(twoSuccessors):
                 oneE = ssp.SuccessorExpectation(V, state, oneAction, oneSuccessor)
                 twoE = ssp.SuccessorExpectation(V, state, twoAction, twoSuccessor)
-                cq1, t = ssp.CompareExpectations(oneE, twoE)
+                cq1, t = ssp.CompareExpectations(oneE, twoE, maxClass=tClass)
 
                 # Track Attacker and Defender Non Acceptability
-                if cq1==AttackResult.ATTACK and twoActVul==1:
+                if cq1==AttackResult.ATTACK and twoActVul:
                     twoAttacked.add(twoSuccessor)
-                elif cq1==AttackResult.REVERSE and oneActVul==1:
+                elif cq1==AttackResult.REVERSE and oneActVul:
                     oneAttacked.add(oneSuccessor)
         
             
@@ -67,19 +64,19 @@ class Retrospection:
 
 
     def vulnerable(result):
-        vOne, vTwo = 1, 1 # 1 means vulnerable; 0 means cannot be attacked (defended)
+        vOne, vTwo = True, True # True means vulnerable; False means cannot be attacked (defended)
         if result==AttackResult.ATTACK:
-            vOne = 0 # Attack arguments cannot be attacked
+            vOne = False # Attack arguments cannot be attacked
         elif result==AttackResult.REVERSE:
-            vTwo = 0 # Defender arguments cannot be attacked
+            vTwo = False # Defender arguments cannot be attacked
         elif result==AttackResult.ABSOLUTE_ATTACK:
-            return 0, 1 # Automatic attack on all defender arguments
+            return False, True # Automatic attack on all defender arguments
         elif result==AttackResult.ABSOLUTE_REVERSE:
-            return 1, 0 # Automatic attack on all attacker arguments
+            return True, False # Automatic attack on all attacker arguments
         return vOne, vTwo
 
 
-    def __ArgumentPathPair(ssp:MDP, onePaths, twoPaths):
+    def __ArgumentPathPair(ssp:MM_MDP, onePaths, twoPaths):
         oneProbability = [s.probability for s in onePaths]
         twoProbability = [s.probability for s in twoPaths]
 

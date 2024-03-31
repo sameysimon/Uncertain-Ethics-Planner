@@ -32,7 +32,7 @@ class AbstractWorld_MM_MDP(MM_MDP, AbstractBase):
     def __init__(self, setup=None):
         SM_MDP.__init__(self)
         AbstractBase.__init__(self, setup)
-        self.Theories = [Utilitarian(), Tile()] # Set the ethical theories
+        self.TheoryClasses = [[Utilitarian()]] # Set the ethical theories
         
     # ****
     # Action
@@ -53,7 +53,7 @@ class AbstractWorld_SM_SSP(SM_SSP, AbstractBase):
     def __init__(self, setup=None):
         MM_SSP.__init__(self)
         AbstractBase.__init__(self, setup)
-        self.Theory = Utilitarian() # Set some ethical theories
+        self.Theory = Utilitarian() # Set the ethical theory
         self.discount = 0.9
 
 
@@ -84,7 +84,7 @@ class AbstractWorld_MM_SSP(MM_SSP, AbstractBase):
     def __init__(self, setup=None):
         MM_SSP.__init__(self)
         AbstractBase.__init__(self, setup)
-        self.Theories = [Utilitarian(), Tile()] # Set some ethical theories
+        self.TheoryClasses = [[Utilitarian(), Tile()]] # Set the ethical theories
         self.discount = 0.9
 
 

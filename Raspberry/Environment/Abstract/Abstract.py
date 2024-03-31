@@ -122,7 +122,7 @@ class AbstractBase(object):
 
         self.VisualiseGraph(stateNodes, stateActions, stateLabels, stateActionLabels, actionSuccessors, fileName)
 
-    def VisualiseGraph(self,stateNodes,stateActions,stateLabels,stateActionLabels,actionSuccessors,fileName='file'):
+    def VisualiseGraph(self,stateNodes,stateActions,stateLabels,stateActionLabels,actionSuccessors,fileName='file', showEmptyActions=False):
         G = pygraphviz.AGraph(directed=True)
         G.layout()
         # Draw nodes/states
@@ -131,6 +131,8 @@ class AbstractBase(object):
         # Draw actions and arrows
         for s in stateNodes:
             for action in stateActions[s]:
+                if len(actionSuccessors[s][action])==0 and showEmptyActions == False:
+                    continue # Don't bother render actions with no successors.
                 stateActionID = "a{a}s{s}".format(a=action,s=s)
                 G.add_node(stateActionID, shape='trapezium', color='blue', label=stateActionLabels[stateActionID]) # Add Action
                 G.add_edge(s, stateActionID) #Arrow from parent state to action.

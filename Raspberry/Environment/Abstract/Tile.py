@@ -13,6 +13,10 @@ class Tile(MoralTheory):
     def JudgeTransition(self, successor:MDP.Successor):
         return str(successor.sourceState.props['tile']) + "->" + str(successor.targetState.props['tile'])
     
+    def Gather(self, successors, E, probabilities=None):
+        return successors[0].sourceState.props['tile']
+
+
     def LEQJudgement(self, j1, j2)->AttackResult:
         return AttackResult.DRAW
 

@@ -13,22 +13,13 @@ defaultValues = {
     'goalTiles':[1]
 }
 
-def getRandomProbability(rng, remainingItems, remainingProbability,digits=2):
-    if remainingItems==1:
-        p = round(remainingProbability, digits)
-        if p<0:
-            print()
-        return p
-    evenChance = (remainingProbability)/(remainingItems)
-    p = rng.normal(loc=evenChance,scale=0.25)
-    p = round(p,digits)
-    if p<0:
-        p=0.05
-    if p>1:
-        p=0.95
-    return p
 
 
+def getRandomProbabilities(total):
+    a = np.array([abs(np.random.normal(loc=1/total)) for _ in range(total)])
+    a /= a.sum()
+    a = np.around(a,2)
+    return a
 
 # Create a random setup function, with params fixed. State space has tree structure.
 def randomTreeSetup(depth=2, maxActionFactor=2, maxBranchFactor=2, seed=1234, goals=0, goalsAsLeaves=True):
@@ -51,15 +42,13 @@ def randomTreeSetup(depth=2, maxActionFactor=2, maxBranchFactor=2, seed=1234, go
         for a in actions:
             _stateSpace[_state][a] = []
             noSuccessors = rng.integers(1,maxBranchFactor,endpoint=True)
-            allSuccessorsProb = 0
+            probabilities = getRandomProbabilities(noSuccessors)
             for s in range(noSuccessors):
                 # Successor goes at end of state space.
                 successorState = len(_stateSpace)
 
-                p = getRandomProbability(rng, noSuccessors-s, 1-allSuccessorsProb)
-                allSuccessorsProb+=p
                 # Add successor to state space
-                _stateSpace[_state][a].append((successorState, p))
+                _stateSpace[_state][a].append((successorState, probabilities[s]))
                 _stateSpace.append({})
         # Build all the successor states, one level down:
         for s in range(oldStateCount, len(_stateSpace)):
@@ -72,7 +61,7 @@ def randomTreeSetup(depth=2, maxActionFactor=2, maxBranchFactor=2, seed=1234, go
     goals=[]
     buildStateSpace(ss,acts,leaves,0,depth)
     for s in ss:
-        u.append(rng.integers(-10,11))
+        u.append(rng.integers(-10,-1))
 
     potentialGoals = leaves
     if goalsAsLeaves==False:
