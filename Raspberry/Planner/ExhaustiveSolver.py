@@ -5,6 +5,7 @@ import copy
 
 class Exhaustive:
 
+    # WARNING! VERY LARGE EXPONENTIAL TIME COMPLEXITY
     def solve(solver, problem, s0=0, bpsg=None) -> BestSubGraph:
         # Creates a complete state-space graph via Depth-First-Search.
         # Compares every policy with hypothetical retrospection.
@@ -12,13 +13,15 @@ class Exhaustive:
 
         # Generate all states in problem via DFS
         policies = solver.DepthFirstSearch(problem, s0, {})
+        pi = policies[0]
         policyPaths = []
         for pi in policies:
-            policyPaths.append(solver.buildPolicyPaths(problem, pi))
+            for path in problem.getPaths(pi, currentState=problem.states[s0]):
+                policyPaths.append(path)
+        
 
-        nonAccept = Retrospection.RetrospectPaths(alternatives=policyPaths)
-        minIdx = np.argmin(nonAccept)
-        return policies[minIdx]
+        nonAcceptability = Retrospection.Retrospect(alternatives=policyPaths)
+        
 
     def DepthFirstSearch(solver, ssp, stateInd, colours):
         colours[stateInd] = 'v'

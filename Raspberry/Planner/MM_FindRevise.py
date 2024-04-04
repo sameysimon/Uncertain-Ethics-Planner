@@ -2,11 +2,73 @@ from Raspberry.Planner.Solution import BestSubGraph
 from Raspberry.Planner.Hypothetical import Retrospection
 import numpy as np
 import copy
+from tabulate import tabulate
+
+
+class Log:
+    messages=[]
+    cycle=0
+    active=False
+    def retrospection(state, actions, nonaccept, bestAction):
+        if Log.active==False:
+            return
+        m="For state {s}, there are {l} ethical actions:\n".format(l=len(actions), s=state.id)
+        for idx, a in enumerate(actions):
+            m+= "   Action {a} with {n} non-acceptability".format(a=a,n=nonaccept[idx])
+            if a==bestAction:
+                m+= "*"
+            m+="\n"
+        m+= "Selected action {a}".format(a=bestAction)
+        Log.__addToLog(m)
+    
+    def EstimateMatrix(E, showStates=[]):
+        if Log.active==False:
+            return
+        m="\After Cycle {c}, Updated values in Estimate Matrix:\n".format(c=Log.cycle)
+        table = {}
+        for key in E:
+            table[key] = [E[key][index] for index in showStates]
+
+        m += tabulate(table,headers="keys", tablefmt="grid", showindex=True)
+        Log.__addToLog(m)
+        
+    def NegativeHR(state, action, attackingAction, attacks):
+        if Log.active==False:
+            return
+        m = "Negative retrospection for action {a} on state {s}.\n".format(state.id,action)
+        m+= "Should take {aa} because: \n".format(attackingAction)
+        for sourceSuccessor, targetSuccessor in attacks:
+            m+= "   If we reach: {targetID} with probability {p}, \n".format(targetID=targetSuccessor.targetState.id, p=targetSuccessor.probability)
+            m+= "   Then we miss: {sourceID} with probability {p} \n".format(sourceID=sourceSuccessor.targetState.id, p=sourceSuccessor.probability)
+        Log.__addToLog(m)
+
+    def VisualiseGraph(bpsg, ssp):
+        if Log.active==False:
+            return
+        ssp.VisualiseExplicitGraph(bpsg, fileName='temp/update'+str(Log.cycle))
+
+    def newCycle():
+        if Log.active==False:
+            return
+        Log.cycle+=1
+
+    def __addToLog(m):
+        if Log.active==False:
+            return
+        Log.messages.append(m+"\n")
+
+    def Flush():
+        if Log.active==False:
+            return
+        file = open('temp/data'+str(Log.cycle)+'.txt','w')
+        for m in Log.messages:
+            file.write(m)
+        file.close()
+        Log.messages=[]
+
 
 class Solver:
-    updateCount=0
     def isConverged(self, ssp, bpsg:BestSubGraph):
-
         V_ = copy.deepcopy(bpsg.V)
         def visitState(s):
             nonlocal ssp, bpsg
@@ -18,7 +80,9 @@ class Solver:
         bpsg.update(ssp)
         return ssp.isConverged(bpsg.V, V_)
 
-    def solve(solver, problem, s0=0, bpsg=None) -> BestSubGraph:
+    def solve(solver, problem, s0=0, bpsg=None, makeLogs=True) -> BestSubGraph:
+        Log.cycle=0
+        Log.active=makeLogs
         if bpsg==None:
             bpsg=BestSubGraph(startStateIndex=s0, ssp=problem)
         converged=False
@@ -27,6 +91,7 @@ class Solver:
             bpsg = solver.FindAndRevise(problem, bpsg)
             converged = solver.isConverged(problem, bpsg)
             i+=1
+        Log.Flush()
         
         return bpsg
 
@@ -42,11 +107,12 @@ class Solver:
                     bpsg.updateValuation(ssp, newStates) # Inits heuristic for new states
                 # Select and set best action in policy/value function
                 solver.ReviseAction(stateInd, ssp, bpsg)
-                #ssp.VisualiseExplicitGraph(bpsg, fileName='temp/update'+str(Solver.updateCount))
-                Solver.updateCount+=1
                 
             # Revise policy in depth-first-search
             solver.DepthFirstSearch(ssp, bpsg, visitState)
+            Log.EstimateMatrix(bpsg.V, showStates=bpsg.states)
+            Log.VisualiseGraph(bpsg, ssp)
+            Log.newCycle()
             # update solution graph to match policy
             bpsg.update(ssp)
             # Check for more unexpanded states in solution graph
@@ -73,7 +139,6 @@ class Solver:
             if nonAcceptability[idx]==lowestNonAccept:
                 ethicalActions.append(a)
 
-
         # Select ethical action with best reward
         reward = []
         for action in ethicalActions:
@@ -84,6 +149,7 @@ class Solver:
         bestIdx = np.argmax(reward)
         bestAction = ethicalActions[bestIdx]
 
+        Log.retrospection(state, actions, nonAcceptability, bestAction)
         # Update policy and Value function.
         bpsg.pi[stateIndex] = bestAction
         ssp.setValuation(bpsg.V, ssp.states[stateIndex], bestAction)

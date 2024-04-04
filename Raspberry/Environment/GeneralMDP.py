@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod 
+from copy import deepcopy
 
 class MDP(ABC):
     class State:
@@ -93,3 +94,18 @@ class MDP(ABC):
 
     def printPolicy(ssp, pi):
         return
+
+    def getPaths(self, pi, currentState=None, currentPath=[]):
+        if currentState.id in pi.keys():
+            successors = self.getActionSuccessors(currentState, pi[currentState.id])
+            if len(successors)==0:
+                yield currentPath
+            for childSuccessor in successors:
+                if not (childSuccessor.targetState.id in currentPath):
+                    cpy = deepcopy(currentPath)
+                    cpy.append(childSuccessor)
+                    yield from self.getPaths(pi, childSuccessor.targetState, cpy)
+                else:
+                    yield currentPath
+        else:        
+            yield currentPath

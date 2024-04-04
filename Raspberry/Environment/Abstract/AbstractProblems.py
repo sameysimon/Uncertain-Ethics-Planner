@@ -42,8 +42,6 @@ class AbstractWorld_MM_MDP(MM_MDP, AbstractBase):
 """
 
 
-
-
 #
 # Stochastic Shortest Path Problems:
 #

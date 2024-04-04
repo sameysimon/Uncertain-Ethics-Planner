@@ -7,22 +7,7 @@ class Utilitarianism(MoralTheory):
     def __init__(self, discount=0.9) -> None:
         self.tag='utility'
         self.discount=discount
-    
-    # To be defined by a subclass for the environment.
-    def JudgeState(self, state):
-        return super().JudgeState(state)
-    
-    def JudgeTransition(self, successor):
-        return super().JudgeTransition(successor)
 
-    # Use estimates in value function to build expected utility of judgement + successors
-    # In effect, passes in (Judgement, [(estimate, probability)])
-    # This is used as to E = R(s) + Sum_s'[P(s,a,s') * E(s') * discount]
-    def EstimateUnion(self, judgement, estimates, probabilities, ssp):
-        union = judgement
-        for i in range(len(estimates)):
-            union += self.discount * probabilities[i] * estimates[i]
-        return union
 
 
     def EmptyEstimate(self):
@@ -43,17 +28,6 @@ class Utilitarianism(MoralTheory):
     def StateHeuristic(self, state:MDP.State):
         return 0        
 
-    # Testing, temporary methods:
-        
-    def IntegrateJudgments(self, j1, j2):
-        return j1 + j2
-
-    def LEQJudgement(self, j1, j2)->AttackResult:
-        if j1 > j2:
-            return AttackResult.ATTACK
-        if j1 < j2:
-            return AttackResult.REVERSE
-        return AttackResult.DRAW
 
     # Given state-action-state transition, adds judgement to estimates for back-propagation
     # In effect, parameters are: ([(judgement, probability)], [Estimates])
@@ -72,3 +46,13 @@ class Utilitarianism(MoralTheory):
 
 
 
+
+    # DEPRECATED
+    # Use estimates in value function to build expected utility of judgement + successors
+    # In effect, passes in (Judgement, [(estimate, probability)])
+    # This is used as to E = R(s) + Sum_s'[P(s,a,s') * E(s') * discount]
+    def EstimateUnion(self, judgement, estimates, probabilities, ssp):
+        union = judgement
+        for i in range(len(estimates)):
+            union += self.discount * probabilities[i] * estimates[i]
+        return union

@@ -1,16 +1,9 @@
 from abc import abstractmethod, ABC
 
 class MoralTheory(ABC):
-    def __init__(self, _ssp) -> None:
-        self.ssp = _ssp
-
 
     @abstractmethod
     def EmptyEstimate():
-        pass
-
-    @abstractmethod
-    def JudgeState(self, state):
         pass
 
     @abstractmethod
@@ -23,16 +16,15 @@ class MoralTheory(ABC):
         pass
 
     @abstractmethod
-    def LEQJudgement(j1, j2)->bool:
-        pass
-
-    @abstractmethod
     def CompareEstimates(e1,e2)->bool:
         pass
 
+
     @abstractmethod
-    def EstimateUnion(judgement, alternatives):
+    def IsConverged(self, V, V_, epsilon=0.0001):
         pass
 
+    def StateHeuristic(self, state):
+        return False
 
     

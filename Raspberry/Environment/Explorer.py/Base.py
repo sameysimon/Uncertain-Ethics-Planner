@@ -1,74 +1,87 @@
 import copy
-import pygraphviz
 
-class AbstractBase(object):
+class ExplorerBase(object):
 
     def __init__(self, setup) -> None:
-        super(AbstractBase, self).__init__()
-        self.world = {}
-        if setup:
-            self.world = setup
-        else:
-            self.world = AbstractBase.defaultSetup()
-        self.stateFactory({'tile':0, 'utility':self.world['utilities'][0]}) # Create at least one initial state
-        self.rules = [AbstractBase.GraphMove, AbstractBase.UtilityResult] # Add a transition rule
-
+        super(ExplorerBase, self).__init__()
+        self.stateFactory({'time':0, 'people_saved':0, 'camp_time':0, 'comm_time':0, 'position':'start', 'operating':False}) # Create at least one initial state
+        self.rules = [ExplorerBase.Time, ExplorerBase.ExploreEffects, ExplorerBase.Decide] # Add a transition rule
 
     # ****
     # Transition Rules
     # ****
 
-    def GraphMove(self, transition, action):
+    def ExploreEffects(self, transition, action):
         props, prob = transition
-        outcomes = []
-        
-        for dest, p in self.world['stateSpace'][props['tile']][action]:
+        if props[0]['position']!= 'exploring':
+            return [transition]
+        outcomes=[]
+        time = props['time']
+        if action=='risk': # More chance of finding someone; chance of termination.
+            # Bad outcome.
             props_ = copy.deepcopy(props)
-            prob_ = prob
+            props_['operating']==False
+            p1 = round(0.15*time,2) # More likely with time.
+            outcomes.append(props_, prob*p1)
             
-            props_['tile'] = dest
-            props_['utility'] = self.world['utilities'][props_['tile']]
-            prob_ *= p
-            outcomes.append((props_, prob_))
+            # Good outcome.
+            props_ = copy.deepcopy(props)
+            props_['people_saved']+=1
+            p2 = round(0.5/time,2) # less likely with time.
+            outcomes.append(props_, prob*p2)
+            if 1-p2-p1>=0:
+                # Medium outcome (only time passes)
+                props_ = copy.deepcopy(props)
+                outcomes.append(props_, prob*1-p2-p1)
+        elif action=='safe': # Less chance of finding someone; no chance of termination.
+            # Find someone 
+            props_ = copy.deepcopy(props)
+            props_['people_saved']+=1
+            p = round(0.25/time,2) # less likely with time.
+            outcomes.append(props_, prob*p)
+            # Nothing happens
+            props_ = copy.deepcopy(props)
+            outcomes.append(props_, prob*1-p)
 
         return outcomes
-    
-    def UtilityResult(self, transition, action):
+
+    def NonExploreEffects(self, transition, action):
         props, prob = transition
-        #props_ = copy.deepcopy(props)
-        #props_['utility'] = self.world['utilities'][props_['tile']]
-        props['utility'] = self.world['utilities'][props['tile']]
+        if props['position']=='camp':
+            props['camp_time']+=1
+        if props['position']=='comms':
+            props['comm_time']+=1
+        return [props, prob]
+
+    def Decide(self, transition, action):
+        props, prob = transition
+        if props['position']=='start':
+            if action=='explore':
+                props['position']='exploring'
+
+            elif action=='camp':
+                props['position']='camp'
+
+            elif action=='comms':
+                props['position']='comms'
+        elif props['operating']:
+            if action=='return':
+                props['position']='start'
+
         return [(props, prob)]
 
-
-    # ****
-    # Default Setup Function
-    # ****
-    def defaultSetup():
-        d={}
-        d['cost']=-1
-        d['actions'] = {1:['A','B'], 2:['A', 'B'], 3:['A','B'], 4:['A', 'B']}
-        d['utilities'] = [0,1,2,3,4]
-        d['goalTiles'] = [4]
-
-        # Initialise state space successor dicts
-        d['stateSpace'] = [{},{},{},{}]
-        
-        # List of successor (tile,probability) for each state-action
-        d['stateSpace'][1]['A'] = [(2,1)]
-        d['stateSpace'][1]['B'] = [(2,1)]
-
-        d['stateSpace'][2]['A'] = [(3,1)]
-        d['stateSpace'][2]['B'] = [(3,1)]
-        
-        d['stateSpace'][3]['A'] = [(4,1)]
-        d['stateSpace'][3]['B'] = [(4,1)]
-
-        d['stateSpace'][4]['A'] = [(4,1)]
-        d['stateSpace'][4]['B'] = [(4,1)]
-
-        return d
     
+
+
+    
+    def Time(self, transition, action):
+        props, prob = transition
+        props['time']+=1
+        return [props, prob]
+
+
+
+ 
     # ****
     # Visualisation Functions
     # ****
@@ -141,7 +154,5 @@ class AbstractBase(object):
                 for s_,p in actionSuccessors[s][action]:
                     G.add_edge(stateActionID, s_, label=p)# Arrow from action to successor.
         G.draw("{fn}.pdf".format(fn=fileName),format='pdf',prog="dot")
-        p = G.draw(format='svg',prog="dot")
-        print(p)
                     
     

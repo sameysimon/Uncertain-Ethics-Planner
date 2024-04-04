@@ -14,6 +14,8 @@ class Tile(MoralTheory):
         return str(successor.sourceState.props['tile']) + "->" + str(successor.targetState.props['tile'])
     
     def Gather(self, successors, E, probabilities=None):
+        if len(successors)==0:
+            return ''
         return successors[0].sourceState.props['tile']
 
 

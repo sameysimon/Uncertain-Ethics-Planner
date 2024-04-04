@@ -1,6 +1,5 @@
 from Raspberry.Environment.GeneralMDP import MDP
 from Raspberry.Environment.Theory.Utilitarianism import Utilitarianism
-import numpy as np
 
 class Utilitarian(Utilitarianism):
 
