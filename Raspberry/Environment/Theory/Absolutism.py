@@ -17,9 +17,9 @@ class Absolutism(MoralTheory):
         return False
 
     def CompareEstimates(self, e1,e2)->AttackResult:
-        if not e1 and e2:
+        if e1==False and e2==True:
             return AttackResult.ATTACK
-        if e2 and not e1:
+        if e1==True and e2==False:
             return AttackResult.REVERSE
         return AttackResult.DRAW
     
@@ -31,3 +31,8 @@ class Absolutism(MoralTheory):
 
     def StateHeuristic(self, state:MDP.State):
         return False
+    
+    def EstimateString(self, estimate):
+        if estimate:
+            return 't'
+        return 'f'

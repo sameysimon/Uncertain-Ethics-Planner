@@ -1,5 +1,4 @@
 from Raspberry.Environment.MultiMoralMDP import MM_MDP
-from Raspberry.Environment.SingletonMoralMDP import SM_MDP
 from Raspberry.Environment.GeneralMDP import MDP
 from abc import ABC, abstractmethod 
 import numpy as np
@@ -17,9 +16,6 @@ class MSSP(MDP,ABC):
     def isGoal(self, state: MDP.State):
         pass
 
-    @abstractmethod
-    def getStateHeuristic(self, state: MDP.State) -> dict:
-        pass
 
 
 class MM_SSP(MM_MDP, MSSP, ABC):
@@ -42,7 +38,8 @@ class MM_SSP(MM_MDP, MSSP, ABC):
         return False
 
 
-class SM_SSP(SM_MDP, MSSP, ABC):
+class SM_SSP(MM_MDP, MSSP, ABC):
     def __init__(self, discount=0.9):
         super().__init__()
         self.discount=discount
+        

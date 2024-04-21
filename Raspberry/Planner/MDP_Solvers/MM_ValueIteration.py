@@ -1,12 +1,13 @@
 # Value Iteration Implementation to solver a Multi-Moral MDP with Hypothetical Retrospection
 
 from Raspberry.Environment.Result import AttackResult
-from Raspberry.Planner.Hypothetical import Retrospection
 from Raspberry.Environment.MultiMoralMDP import MM_MDP
+from Raspberry.Planner.Hypothetical import Retrospection
+from Raspberry.Planner.MDP_Solvers.ValueIteraton import ValueIteration
 import numpy as np
 import copy
 
-class Solver:
+class Multi_ValueIteration():
     updateCount=0
 
     def solve(solver, problem:MM_MDP) -> dict:
@@ -18,12 +19,14 @@ class Solver:
         i=0
         E = {}
         for s in problem.states:
-            Solver.appendToE(E, problem.EmptyValuation())
+            Multi_ValueIteration.appendToE(E, problem.EmptyValuation())
         pi={}
         while not converged:
             E_ = copy.deepcopy(E)
             for s in problem.states:
                 actions = problem.getActions(s)
+                if len(actions)==0:
+                    continue
                 actionSuccessors = [problem.getActionSuccessors(s,a) for a in actions]
                 nonAcceptability = Retrospection.Retrospect(problem, s, actions, actionSuccessors, E)
                 bestAction = actions[np.argmin(nonAcceptability)]
@@ -40,7 +43,6 @@ class Solver:
             successors = problem.getActionSuccessors(state, a)
             l.append(problem.Theory.Gather(successors, E))
         return l
-
 
     def preferred(solver, l, theory):
         return l[solver.argPreferred(l, theory)]

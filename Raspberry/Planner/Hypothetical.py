@@ -23,15 +23,14 @@ class Retrospection:
                 twoAction, twoSuccessors = actions[j], actionSuccessors[j]
                 oneAttacked, twoAttacked = Retrospection.__ArgumentPair(ssp,V,state,oneAction,oneSuccessors,twoAction,twoSuccessors)
                 actionAttacks[i].extend(oneAttacked)
-                actionAttacks[j].extend(twoAttacked)
-                    
+                actionAttacks[j].extend(twoAttacked)        
         
-        nonAcceptability = []
-        for attacks in actionAttacks:
+        nonAcceptability = [0 for _ in actions]
+        for idx, attacks in enumerate(actionAttacks):
             # Finds cumulative probability of attacked successors for action
             attackedSuccessors = set([a.targetSuccessor for a in attacks])
             na = Retrospection.GetProbability(attackedSuccessors)
-            nonAcceptability.append(na)
+            nonAcceptability[idx] = na
         
         Retrospection.RetrospectionTable(ssp, state, actions, actionSuccessors,actionAttacks,nonAcceptability, V)
         return nonAcceptability

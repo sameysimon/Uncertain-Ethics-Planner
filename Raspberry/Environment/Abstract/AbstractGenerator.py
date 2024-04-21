@@ -1,4 +1,4 @@
-from Raspberry.Environment.Abstract.Abstract import AbstractBase
+from Raspberry.Environment.Abstract.AbstractProblem import AbstractProblem
 import numpy as np
 import json
 import copy
@@ -6,13 +6,12 @@ import copy
 # Generates abstract problems with properties
 
 defaultValues = {
-    'stateSpace':{},
+    'stateSpace':[],
     'utilities':[],
     'cost' : -1,
     'actions':{},
     'goalTiles':[1]
 }
-
 
 
 def getRandomProbabilities(total):
@@ -61,38 +60,30 @@ def randomTreeSetup(depth=2, maxActionFactor=2, maxBranchFactor=2, seed=1234, go
     goals=[]
     buildStateSpace(ss,acts,leaves,0,depth)
     for s in ss:
-        u.append(rng.integers(-10,-1))
+        u.append(float(rng.integers(-10,-1)))
 
     potentialGoals = leaves
     if goalsAsLeaves==False:
         potentialGoals=range(len(ss))
     else:
         potentialGoals = leaves
-
+    """
     for i in range(len(goals)+1):
         c = rng.choice(potentialGoals)
         goals.append(c)
         potentialGoals.remove(c)
-
+    """
     return {'utilities':u, 'stateSpace':ss, 'cost':-1, 'actions':acts, 'goalTiles':goals}
         
 
-""" OBSOLETE, REFACTOR!
+
 def setupFunctionFromFile(fileName):
-    file = open(fileName+'.json','r')
+    file = open(fileName,'r')
     t = file.read()
     params = json.loads(t)
-    def setup():
-        AbstractBase.cost=params['cost']
-        AbstractBase.goalTiles=params['goalTiles']
-        AbstractBase.actions = params['actions']
-        AbstractBase.utilities = params['utilities']
-        AbstractBase.stateSpace = params['stateSpace']
-
-    return setup
+    return params
 
 def saveSetupParams(fileName, params):
-    with open(fileName+'.json', 'w') as f:
+    with open(fileName, 'w') as f:
         json.dump(params, f)
     
-"""

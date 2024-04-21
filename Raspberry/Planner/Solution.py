@@ -23,8 +23,8 @@ class BestSubGraph:
         for s in self.states:
             if s in self.expandedStates:
                 continue
-            if GSSP.isGoal(GSSP.states[s]):
-                continue
+            '''if GSSP.isGoal(GSSP.states[s]):
+                continue'''
             x.append(s)
         return x
 
@@ -59,11 +59,11 @@ class BestSubGraph:
         self.states.append(stateInd)
         if not stateInd in self.pi.keys():
             return
-
+        '''
         if GSSP.isGoal(state):
             return
-        
-        stateBestAction =self.pi[stateInd]
+        '''     
+        stateBestAction = self.pi[stateInd]
         
         for s in state.successors[stateBestAction]:
             self.stateSuccessors.setdefault(stateInd, [])
@@ -77,8 +77,8 @@ class BestSubGraph:
     def updateValuation(self, GSSP, newStates):
         if newStates==None:
             return
-        vStates = len(self.V[list(self.V.keys())[0]])
-        for i in range(vStates, vStates + len(newStates)):
+        numOfStatesInV = len(self.V[list(self.V.keys())[0]])
+        for i in range(numOfStatesInV, numOfStatesInV + len(newStates)):
             self.appendToV(GSSP.getStateHeuristic(GSSP.states[i]))
 
     def isProper(self, GSSP):

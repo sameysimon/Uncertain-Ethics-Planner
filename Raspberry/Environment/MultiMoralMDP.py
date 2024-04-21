@@ -12,7 +12,7 @@ class MM_MDP(MDP, ABC):
         super().__init__()
         self.TheoryClasses = [] # List of lists of Moral Theories: lower indexed are preferred.
 
-    def SuccessorExpectation(self, V, state, action, successor):
+    def SuccessorExpectation(self, V, state, action, successor) -> dict:
         # Returns:
         #   Expectation (dict) Returns a expected moral value on a successor of action.
         expect = self.EmptyValuation()
@@ -22,7 +22,7 @@ class MM_MDP(MDP, ABC):
                 expect[t.tag] = t.Gather([successor], V[t.tag],probabilities=[1])
         return expect
 
-    def ActionExpectation(self, state, V, action=0, successors=0):
+    def ActionExpectation(self, state, V, action=0, successors=0) -> dict:
         # Returns:
         #   Expectation (dict) Returns a expected moral values from an action.
         if successors==0:
@@ -43,7 +43,7 @@ class MM_MDP(MDP, ABC):
                 expect[t.tag] = t.EstimateUnion(t.JudgeState(state), paths, probabilities, self)
         return expect
 
-    def PathExpectation(self, path, probability):
+    def PathExpectation(self, path, probability) -> dict:
         j = {}
         for C in self.TheoryClasses:
             for t in C:
@@ -59,7 +59,7 @@ class MM_MDP(MDP, ABC):
 
         return expect
 
-    def CompareExpectations(self, expectOne, expectTwo, maxClass=None):
+    def CompareExpectations(self, expectOne, expectTwo, maxClass=None) -> tuple:
         #Returns:
         #   (AttackResult, MoralTheory) A tuple of the attack result and theory that caused attack. Theory is None in a draw.
         # Considers preferred theory classes first. If they launch attack, no need to consider rest.
@@ -86,7 +86,7 @@ class MM_MDP(MDP, ABC):
 
 # If theory class has conflict, move to next theory class.
 
-    def EmptyValuation(self):
+    def EmptyValuation(self) -> dict:
         v = {}
         for C in self.TheoryClasses:
             for t in C:
@@ -101,17 +101,23 @@ class MM_MDP(MDP, ABC):
         return h
     
     # Update the valuation of state in V to match the successors of action
-    def setValuation(self, V, state, action):
+    def setValuation(self, V, state, action) -> dict:
         successors = self.getActionSuccessors(state, action)
         for C in self.TheoryClasses:
             for t in C:
                 V[t.tag][state.id] = t.Gather(successors, V[t.tag])
         return V
 
-    def isConverged(self, V, V_, epsilon=0.001):
+    def isConverged(self, V, V_, epsilon=0.001) -> bool:
         for C in self.TheoryClasses:
             for t in C:
                 if not t.IsConverged(V[t.tag], V_[t.tag], epsilon):
                     return False
         return True
         
+    def getTheoryByTag(self, tag) -> MoralTheory:
+        for C in self.TheoryClasses:
+            for t in C:
+                if t.tag==tag:
+                    return t
+        return None

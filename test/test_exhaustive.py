@@ -1,4 +1,4 @@
-from Raspberry.Environment.Abstract.AbstractProblems import AbstractWorld_MM_SSP
+from Raspberry.Environment.Abstract.AbstractProblem import AbstractProblem
 import Raspberry.Environment.Abstract.AbstractGenerator as ag
 from Raspberry.Planner.ExhaustiveSolver import Exhaustive
 
@@ -24,7 +24,7 @@ def test_basicSolve():
     d['stateSpace'][3]['A'] = []
 
     
-    ssp = AbstractWorld_MM_SSP(setup=d)
+    ssp = AbstractProblem(setup=d)
     # Make image of tree
     #ssp.VisualiseCompleteGraph('abstractTest')
     solver = Exhaustive()
@@ -57,9 +57,30 @@ def test_ProbabilisticDoubleAction():
     d['stateSpace'][4]['A'] = [(8,1)]
 
 
-    ssp = AbstractWorld_MM_SSP(setup=d)
+    ssp = AbstractProblem(setup=d)
     solver = Exhaustive()
     bpsg = solver.solve(ssp)
+
+def test_weird():
+    d={}
+    d['cost']=-1 # deprecated?
+    d['goalTiles']=[]
+    d['actions']
+    d['utilities']=[0,-1,-2,1,1,1,1,-1,-1,-2]
+    
+    d['stateSpace'] = [{} for i in range(0,10)]
+    d['stateSpace'][0]['A'] = [(1,0.5), (2,0.5)]
+    d['stateSpace'][0]['B'] = [(3,1)]
+
+    d['stateSpace'][1]['A'] = [(4,1)]
+
+    d['stateSpace'][2]['A'] = [(9,1)]
+
+    d['stateSpace'][3]['A'] = [(5,1)]
+
+    d['stateSpace'][4]['A'] = [(7,1)]
+
+
 
 
 

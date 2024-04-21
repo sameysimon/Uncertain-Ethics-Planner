@@ -35,7 +35,7 @@ class Utilitarianism(MoralTheory):
     def Gather(self, successors, E, probabilities=None):
         g = 0
         for idx, s in enumerate(successors):
-            eu =  (self.JudgeTransition(s) + E[s.targetState.id])
+            eu =  (self.JudgeTransition(s) + (E[s.targetState.id]*self.discount))
             if probabilities is None:
                 eu *= s.probability
             else:
@@ -44,7 +44,8 @@ class Utilitarianism(MoralTheory):
         return g
 
 
-
+    def EstimateString(self, estimate):
+        return str(round(estimate, 2))
 
 
     # DEPRECATED

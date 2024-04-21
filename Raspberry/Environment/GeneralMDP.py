@@ -50,7 +50,7 @@ class MDP(ABC):
         for ruleFunc in self.rules:
             ruleSuccessorsValues = []
             for existing in successorsValues:
-                ruleSuccessorsValues.extend(ruleFunc(self, existing, action))
+                ruleSuccessorsValues.extend(ruleFunc(self, existing[0], existing[1], action))
             successorsValues = ruleSuccessorsValues
         
         state.successors[action] = []
@@ -58,10 +58,6 @@ class MDP(ABC):
             successorState = MDP.Successor(state, self.stateFactory(targetProperties), probability, action)
             state.successors[action].append(successorState)
         return state.successors[action]
-    
-    @abstractmethod
-    def getActions(self, state:State) -> list:
-        pass
 
     # I don't remember what this does :(
     def getPropStr(stateProps):

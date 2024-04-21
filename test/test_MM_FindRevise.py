@@ -1,5 +1,5 @@
-from Raspberry.Environment.Abstract.AbstractProblems import AbstractWorld_MM_SSP
-from Raspberry.Planner.MM_FindRevise import Solver
+from Raspberry.Environment.Abstract.AbstractProblem import AbstractProblem
+from Raspberry.Planner.MDP_Solvers.MM_Heuristic import Solver
 import Raspberry.Environment.Abstract.AbstractGenerator as ag
 
 
@@ -22,7 +22,7 @@ def test_crashTest():
 
     d['stateSpace'][3]['A'] = []
 
-    ssp = AbstractWorld_MM_SSP(setup=d)
+    ssp = AbstractProblem(setup=d)
     solver = Solver()
     bpsg = solver.solve(ssp)
 
@@ -31,7 +31,6 @@ def test_DoubleAction():
     # A's successor has -1 utility; B's successor has 1 utility. 
     # To apply/back-prop the utility, must take action in A/B.
     # Best policy takes action B in state 0.
-
     d={}    
     d['cost']=-1
     d['goalTiles']=[]
@@ -49,7 +48,7 @@ def test_DoubleAction():
     d['stateSpace'][2]['A'] = [(4,1)]
 
 
-    ssp = AbstractWorld_MM_SSP(setup=d)
+    ssp = AbstractProblem(setup=d)
     solver = Solver()
     bpsg = solver.solve(ssp)
     ssp.VisualiseCompleteGraph('test/graphs/completeDouble')
@@ -86,7 +85,7 @@ def test_ProbabilisticDoubleAction():
     d['stateSpace'][4]['A'] = [(8,1)]
 
 
-    ssp = AbstractWorld_MM_SSP(setup=d)
+    ssp = AbstractProblem(setup=d)
     solver = Solver()
     bpsg = solver.solve(ssp,makeLogs=True)
     ssp.VisualiseCompleteGraph('test/graphs/completeProbDouble')
@@ -99,7 +98,7 @@ def test_random_medium():
     # maximum 3 actions per state, 3 branches per action, max depth=3
     # Trial 1
     setup = ag.randomTreeSetup(maxBranchFactor=3, maxActionFactor=3, depth=3, seed=10101)
-    ssp = AbstractWorld_MM_SSP(setup=setup)
+    ssp = AbstractProblem(setup=setup)
     solver = Solver()
     bpsg = solver.solve(ssp)
     ssp.VisualiseCompleteGraph('test/graphs/randoMediumComplete')
@@ -107,13 +106,13 @@ def test_random_medium():
 
     # Trial 2
     """ setup = ag.randomTreeSetup(maxBranchFactor=3, maxActionFactor=3, depth=3, seed=20202)
-    ssp = AbstractWorld_MM_SSP(setup=setup)
+    ssp = AbstractWorld_MM_MDP(setup=setup)
     solver = Solver()
     bpsg = solver.solve(ssp)
 
     # Trial 3
     setup = ag.randomTreeSetup(maxBranchFactor=3, maxActionFactor=3, depth=3, seed=854543)
-    ssp = AbstractWorld_MM_SSP(setup=setup)
+    ssp = AbstractWorld_MM_MDP(setup=setup)
     solver = Solver()
     bpsg = solver.solve(ssp) """
 
@@ -121,7 +120,7 @@ def test_random_wide():
     # maximum 3 actions per state, 5 branches per action, max depth=3
     # 3^(5*3)= 14M max total states
     setup = ag.randomTreeSetup(maxBranchFactor=5, maxActionFactor=3, depth=3, seed=10101)
-    ssp = AbstractWorld_MM_SSP(setup=setup)
+    ssp = AbstractProblem(setup=setup)
     solver = Solver()
     bpsg = solver.solve(ssp, makeLogs=True)
 
@@ -129,7 +128,7 @@ def test_random_long():
     # maximum 3 actions per state, 3 branches per action, max depth=5
     # 5^(3*3)= 1.9M max total states
     setup = ag.randomTreeSetup(maxBranchFactor=3, maxActionFactor=3, depth=5, seed=10101)
-    ssp = AbstractWorld_MM_SSP(setup=setup)
+    ssp = AbstractProblem(setup=setup)
     solver = Solver()
     bpsg = solver.solve(ssp,makeLogs=False)
     print()
