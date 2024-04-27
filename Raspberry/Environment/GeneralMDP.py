@@ -50,7 +50,8 @@ class MDP(ABC):
         for ruleFunc in self.rules:
             ruleSuccessorsValues = []
             for existing in successorsValues:
-                ruleSuccessorsValues.extend(ruleFunc(self, existing[0], existing[1], action))
+                new = ruleFunc(self, existing[0], existing[1], action)
+                ruleSuccessorsValues.extend(new)
             successorsValues = ruleSuccessorsValues
         
         state.successors[action] = []

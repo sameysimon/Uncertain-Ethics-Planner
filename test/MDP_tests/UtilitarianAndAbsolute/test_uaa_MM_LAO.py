@@ -1,19 +1,22 @@
 from Raspberry.Environment.Abstract.AbstractProblem import AbstractProblem
 from Raspberry.Planner.MDP_Solvers.MM_Heuristic import Solver
 import Raspberry.Environment.Abstract.AbstractGenerator as ag
+from Raspberry.Environment.Abstract.Absolute import Absolute
+from Raspberry.Environment.Abstract.Utilitarian import Utilitarian
 import test.checkPolicy as checkPolicy
+
 
 
 def test_crashTest():
     d = ag.setupFunctionFromFile('test/SavedAbstractEnvs/noChoice.json')
-    ssp = AbstractProblem(setup=d)
+    mdp = AbstractProblem(setup=d, theories=[[Absolute(), Utilitarian()]])
     solver = Solver()
-    pi = solver.solve(ssp)
+    pi = solver.solve(mdp)
 
 
 def test_ProbabilisticDoubleAction():
     d = ag.setupFunctionFromFile('test/SavedAbstractEnvs/probDoubleAction.json')
-    mdp = AbstractProblem(setup=d)
+    mdp = AbstractProblem(setup=d, theories=[[Absolute(), Utilitarian()]])
     solver = Solver()
     bpsg = solver.solve(mdp)
     assert bpsg.pi[0]=='B'
@@ -32,7 +35,7 @@ def test_env_2():
 
 def from_file(fileName, solStateTiles, solActions):
     new = ag.setupFunctionFromFile(fileName=fileName)
-    mdp = AbstractProblem(setup=new)
+    mdp = AbstractProblem(setup=new, theories=[[Absolute(), Utilitarian()]])
     bpsg = Solver().solve(mdp)
     #mdp.VisualiseCompleteGraph('tempCompGraph')
     mdp.VisualiseExplicitGraph(bpsg, 'tempExpGraph')

@@ -2,20 +2,64 @@
 import pygraphviz
 
 
-def VisualiseExplicitGraph(mdp,solution,fileName='file'):
+def VisualiseSolutionGraph(mdp, solution, fileName='SolutionGraph'):
+    stateNodes = solution.states
+    stateActions = {}
+    for s in stateNodes:
+        stateActions[s]=[solution.pi[s]] if s in solution.pi else []
+    stateLabels={}
+    for s in stateNodes:
+        l=mdp.stateString(mdp.states[s]) + "\n"
+        uStr, aStr = "", ""
+        if 'utility' in solution.V.keys():
+            uStr="V_u({utilValue}\n".format(
+            utilValue=round(solution.V['utility'][s],3)
+            )
+        if 'absolute' in solution.V.keys():
+            aStr="V_a={utilValue}\n".format(
+            utilValue=solution.V['absolute'][s]
+            )
+        l = l + uStr + aStr
+        stateLabels[s] = l
+
+    stateActionLabels = {}
+    for s in stateNodes:
+        for a in stateActions[s]:
+            actionTag= "{ac}\n".format(ac=a)
+            successors = mdp.getActionSuccessors(mdp.states[s], a, readOnly=True)
+            for C in mdp.TheoryClasses:
+                for t in C:
+                    actionTag += t.tag + ": " + t.EstimateString(t.Gather(successors, solution.V[t.tag])) + "\n"
+            
+            stateActionLabels["a{action}s{state}".format(action=a, state=s)] = actionTag
+
+    actionSuccessors = {}
+    for s in stateNodes:
+        sDict = {}
+        actionSuccessors[s] = sDict
+        for a in stateActions[s]:
+            # Create Successor dictionary {action: [successor IDs]}
+            successors = []
+            for child in mdp.getActionSuccessors(mdp.states[s], a, readOnly=True):
+                successors.append((child.targetState.id, child.probability))
+            sDict[a]=successors
+
+
+    VisualiseGraph(stateNodes, stateActions, stateLabels, stateActionLabels, actionSuccessors, fileName)
+
+def VisualiseExplicitGraph(mdp,solution,fileName='ExplicitGraph'):
     stateNodes = range(len(mdp.states))
     stateActions = [mdp.getActions(mdp.states[s]) for s in stateNodes]
-
     stateLabels=[]
     for s in stateNodes:
         l=mdp.stateString(mdp.states[s]) + "\n"
         uStr, aStr = "", ""
         if 'utility' in solution.V.keys():
-            uStr="v({utilValue})\n".format(
-            utilValue=solution.V['utility'][s]
+            uStr="V_u({utilValue}\n".format(
+            utilValue=round(solution.V['utility'][s],3)
             )
         if 'absolute' in solution.V.keys():
-            aStr="v({utilValue})\n".format(
+            aStr="V_a={utilValue}\n".format(
             utilValue=solution.V['absolute'][s]
             )
         l = l + uStr + aStr
@@ -24,21 +68,17 @@ def VisualiseExplicitGraph(mdp,solution,fileName='file'):
     stateActionLabels = {}
     for s in stateNodes:
         for a in stateActions[s]:
-            actionTag, doneTag = "", ""
+            actionTag, doneTag = "{ac}\n".format(ac=a), ""
             successors = mdp.getActionSuccessors(mdp.states[s], a, readOnly=True)
-            actionTag = t.EstimateString(t.Gather(successors, solution.V[t.tag]))
             for C in mdp.TheoryClasses:
                 for t in C:
-
-                    actionTag += t.tag + ": " + t.EstimateString(t.Gather())
+                    actionTag += t.tag + ": " + t.EstimateString(t.Gather(successors, solution.V[t.tag])) + "\n"
             
             if s in solution.pi.keys():
                 doneTag=""
                 if solution.pi[s]==a:
-                    doneTag="*"
+                    doneTag="\nCHOSEN"
             stateActionLabels["a{action}s{state}".format(action=a, state=s)] = actionTag + doneTag
-            
-            stateActionLabels["a{action}s{state}".format(action=a, state=s)] = a+doneTag
             doneTag=""
 
     actionSuccessors = []
@@ -52,14 +92,8 @@ def VisualiseExplicitGraph(mdp,solution,fileName='file'):
                 successors.append((child.targetState.id, child.probability))
             sDict[a]=successors
 
-            # Create Action String tag
-            doneTag = ""
-            actionTag = t.EstimateString(t.Gather(successors, solution.V[t.tag]))
-            stateActionLabels["a{action}s{state}".format(action=a, state=s)] = actionTag + doneTag
 
     VisualiseGraph(stateNodes, stateActions, stateLabels, stateActionLabels, actionSuccessors, fileName)
-
-
 
 
 def VisualiseGraph(stateNodes,stateActions,stateLabels,stateActionLabels,actionSuccessors,fileName='file', showEmptyActions=False):
@@ -82,4 +116,3 @@ def VisualiseGraph(stateNodes,stateActions,stateLabels,stateActionLabels,actionS
                 G.add_edge(stateActionID, s_, label=p)# Arrow from action to successor.
     G.draw("{fn}.pdf".format(fn=fileName),format='pdf',prog="dot")
     p = G.draw(format='svg',prog="dot")
-    print(p)

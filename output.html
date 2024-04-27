@@ -4,49 +4,98 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
   <title>Retrospection</title>
 </head>
 <body>
     <h2>Retrospection table</h2>
-    <div class='props'>{'tile': 157, 'utility': -10.0, 'forbidden': False}
+    <div class='props'>{'week': 1, 'student': 0, 'grades': [4, 3], 'maxGrade': 10, 'maxStress': 5, 'stress': [2, 2], 'totalStudents': 2, 'totalWeeks': 2, 'standardChances': [0.1, 0.1]}
       
     </div>
     <div class='rTable'><table border="1" class="dataframe">
   <thead>
     <tr>
       <th></th>
-      <th colspan="2" halign="left">0*</th>
+      <th>standard</th>
+      <th>pos_hon*</th>
+      <th colspan="2" halign="left">neg_lie</th>
     </tr>
     <tr>
       <th></th>
-      <th>158</th>
-      <th>159</th>
+      <th>1</th>
+      <th>6</th>
+      <th>11</th>
+      <th>12</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <th>Probability</th>
-      <td>0.17</td>
-      <td>0.83</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0.4</td>
+      <td>0.6</td>
+    </tr>
+    <tr>
+      <th>wellbeing</th>
+      <td>1* (0.0+0.9*1.0499999999999998)</td>
+      <td>1* (0.5+0.9*1.0499999999999998)</td>
+      <td>0.4* (0.0+0.9*1.0499999999999998)</td>
+      <td>0.6* (0.0+0.9*1.0499999999999998)</td>
+    </tr>
+    <tr>
+      <th>wellbeing=</th>
+      <td>0.94</td>
+      <td>1.44</td>
+      <td>0.94</td>
+      <td>0.94</td>
     </tr>
     <tr>
       <th>utility</th>
-      <td>-4.0+0</td>
-      <td>-2.0+0</td>
+      <td>1* (0.0+0.9*1.0499999999999998)</td>
+      <td>1* (0.0+0.9*1.0499999999999998)</td>
+      <td>0.4* (0.5+0.9*1.0499999999999998)</td>
+      <td>0.6* (0.0+0.9*1.0499999999999998)</td>
+    </tr>
+    <tr>
+      <th>utility=</th>
+      <td>0.94</td>
+      <td>0.94</td>
+      <td>1.14</td>
+      <td>1.14</td>
     </tr>
     <tr>
       <th>Attacked by</th>
+      <td>6 (pos_hon)11 (neg_lie)</td>
       <td></td>
       <td></td>
+      <td>6 (pos_hon)</td>
     </tr>
     <tr>
       <th>Non-Acceptability</th>
+      <td>1</td>
       <td>0</td>
-      <td>0</td>
+      <td>0.6</td>
+      <td>0.6</td>
     </tr>
   </tbody>
 </table>
         
     </div>
+
+    <h4>Successor Properties:</h4>
+    <div class='sProps'><h4>Action: neg_lie</h4><h5>Successor Target ID: 11</h5>{'week': 1, 'student': 1, 'grades': [5, 3], 'maxGrade': 10, 'maxStress': 5, 'stress': [2, 2], 'totalStudents': 2, 'totalWeeks': 2, 'standardChances': [0.6000000000000001, 0.1]}<h5>Successor Target ID: 12</h5>{'week': 1, 'student': 1, 'grades': [4, 3], 'maxGrade': 10, 'maxStress': 5, 'stress': [2, 2], 'totalStudents': 2, 'totalWeeks': 2, 'standardChances': [0.1, 0.1]}<h4>Action: pos_hon</h4><h5>Successor Target ID: 6</h5>{'week': 1, 'student': 1, 'grades': [4, 3], 'maxGrade': 10, 'maxStress': 5, 'stress': [1, 2], 'totalStudents': 2, 'totalWeeks': 2, 'standardChances': [0.1, 0.1]}<h4>Action: standard</h4><h5>Successor Target ID: 1</h5>{'week': 1, 'student': 1, 'grades': [4, 3], 'maxGrade': 10, 'maxStress': 5, 'stress': [2, 2], 'totalStudents': 2, 'totalWeeks': 2, 'standardChances': [0.10500000000000001, 0.1]}
+
+    </div>
+    <h2>Description</h2>
+    <p>Hypothetical Retrospection has 2 Critical Questions.</p>
+    <p>It compares actions in pairs. </p>
+    <p>If one action has greater estimation than another, it becomes the attacker.</p>
+    <p>Successors are pair-wise compared. If the attacker's successor is preferred, it attacks the defender's successor.</p>
+
+    <h5>Utilitarianism</h5>
+    <p>G(s,a) = SUM_{s'} T(s,a,s') * [J(s,a,s') + gamma*K(s')] </p>
+    <h5>Absolutism</h5>
+    <p>G(s,a) = OR_{s'} J(s,a,s') OR K(s'). </p>
 </body>
 </html>

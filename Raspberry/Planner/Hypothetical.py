@@ -3,6 +3,7 @@ from Raspberry.Environment.Result import AttackResult
 from Raspberry.Planner.Solution import BestSubGraph
 import numpy as np
 import pandas as pd
+from Log import Logger
 
 # Currently, only works on Multi-Moral MM_MDPs.
 class Retrospection:
@@ -11,9 +12,7 @@ class Retrospection:
         def __init__(self, source, target):
             self.sourceSuccessor=source
             self.targetSuccessor=target
-    
-    def RetrospectPaths(ssp:MM_MDP,policyPaths:list):
-        pass
+
 
     def Retrospect(ssp:MM_MDP, state:MM_MDP.State, actions:list, actionSuccessors:list, V):
         actionAttacks = [[] for _ in actions]
@@ -31,8 +30,8 @@ class Retrospection:
             attackedSuccessors = set([a.targetSuccessor for a in attacks])
             na = Retrospection.GetProbability(attackedSuccessors)
             nonAcceptability[idx] = na
-        
-        Retrospection.RetrospectionTable(ssp, state, actions, actionSuccessors,actionAttacks,nonAcceptability, V)
+        if Logger.debug:
+            Logger.RetrospectionTable(ssp, state, actions, actionSuccessors,actionAttacks,nonAcceptability, V)
         return nonAcceptability
     
     def GetProbability(successors):
@@ -110,94 +109,3 @@ class Retrospection:
                     oneNonAccept += oneProbability[oneIdx]*oneVulnerable
 
 
-
-    def RetrospectionTable(ssp, state, actions, actionSuccessors, attackedArgs, nonAcceptability, V):
-        # Generate columns
-        bestaIdx = np.argmin(nonAcceptability)
-
-        cols = []
-        def makeColumn(aIdx, action, successor):
-            nonlocal cols, bestaIdx
-            if aIdx==bestaIdx:
-                cols.append([action+"*", successor.targetState.id])
-            else:
-                cols.append([action, successor.targetState.id])
-
-        Retrospection.__runOnActionSuccessor(actions, actionSuccessors, makeColumn)
-        colsDF = pd.DataFrame(cols, columns=["",""])
-        columns = pd.MultiIndex.from_frame(colsDF)
-
-        
-        index = []
-        rows = []
-
-        row = []   
-        rows.append(row)
-        index.append('Probability')
-        def addProbability(aIdx, action, successor):
-            nonlocal row
-            row.append(str(successor.probability))
-        Retrospection.__runOnActionSuccessor(actions, actionSuccessors, addProbability)
-
-        for C in ssp.TheoryClasses:
-            for t in C:
-                index.append(t.tag)
-                row = []
-                rows.append(row)
-                def addToRow(aIdx, action, successor):
-                    nonlocal row, V
-                    row.append(str(t.JudgeTransition(successor)) + "+" + str(V[t.tag][successor.targetState.id]))
-                Retrospection.__runOnActionSuccessor(actions, actionSuccessors, addToRow)
-
-        row = []   
-        rows.append(row)
-        index.append('Attacked by')
-        def addAttacks(aIdx, action, successor):
-            nonlocal row, attackedArgs
-            attackSig = ""
-            for a in attackedArgs[aIdx]:
-                if a.targetSuccessor == successor:
-                    attackSig+=str(a.sourceSuccessor.targetState.id) + " (" + a.sourceSuccessor.action + ")"
-            row.append(attackSig)
-        Retrospection.__runOnActionSuccessor(actions, actionSuccessors, addAttacks)
-        
-        
-        row = []
-        rows.append(row)
-        index.append('Non-Acceptability')
-        def addNonAccept(aIdx, action, successor):
-            nonlocal nonAcceptability
-            row.append(nonAcceptability[aIdx])
-        Retrospection.__runOnActionSuccessor(actions, actionSuccessors, addNonAccept)
-        
-
-        df = pd.DataFrame(rows, columns=columns,index=index)
-
-        Retrospection.saveToFile(state.props, df.to_html())
-
-
-    def saveToFile(props, t):
-        with open('template.html', 'r') as file:
-            original = file.read()
-
-        tagTable = "<div class='props'>"
-        insert = original.find(tagTable)
-        insert+=len(tagTable)
-        modified = original[:insert] + str(props) + original[insert:]
-
-        tagTable = "<div class='rTable'>"
-        insert = modified.find(tagTable)
-        insert+=len(tagTable)
-        modified = modified[:insert] + t + modified[insert:]
-
-        # Write
-        with open('output.html', 'w') as file:
-            file.write(modified)
-
-
-
-    def __runOnActionSuccessor(actions, actionSuccessors, fn):
-        for aIdx in range(len(actions)):
-            action = actions[aIdx]
-            for s in actionSuccessors[aIdx]:
-                fn(aIdx, action, s)

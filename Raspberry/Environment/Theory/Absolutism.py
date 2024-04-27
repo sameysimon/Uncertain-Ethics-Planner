@@ -1,4 +1,4 @@
-from Raspberry.Environment.MoralSSP import MDP
+from Raspberry.Environment.GeneralMDP import MDP
 from Raspberry.Environment.Result import AttackResult
 from Raspberry.Environment.Theory.MoralTheory import MoralTheory
 import numpy as np

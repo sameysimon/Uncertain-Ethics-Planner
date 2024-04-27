@@ -1,0 +1,32 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(Debug) Ethical Planner",
+            "type": "python",
+            "request": "launch",
+            "module": "Raspberry",
+            "justMyCode": true,
+            "python": "/opt/miniconda3/envs/EthicalPlanner/bin/python",
+            "osx": {
+                "env": { "PATH": "/opt/miniconda3/envs/EthicalPlanner/bin:/opt/miniconda3/condabin:/opt/local/bin:/opt/local/sbin:Applications/CMake.app/Contents/bin:/Applications/CMake.app/Contents/bin:/Users/user/.nvm/versions/node/v19.1.0/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Users/user/Library/Python3.8/bin:/Library/TeX/texbin:/usr/local/munki:/opt/X11/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/Users/user/.fig/bin:/Users/user/.local/bin" }
+            },
+            "args": ["-debug"]
+        
+        },
+        {
+            "name": "Ethical Planner",
+            "type": "python",
+            "request": "launch",
+            "module": "Raspberry",
+            "justMyCode": true,
+            "python": "/opt/miniconda3/envs/EthicalPlanner/bin/python",
+            "osx": {
+                "env": { "PATH": "/opt/miniconda3/envs/EthicalPlanner/bin:/opt/miniconda3/condabin:/opt/local/bin:/opt/local/sbin:Applications/CMake.app/Contents/bin:/Applications/CMake.app/Contents/bin:/Users/user/.nvm/versions/node/v19.1.0/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Users/user/Library/Python3.8/bin:/Library/TeX/texbin:/usr/local/munki:/opt/X11/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/Users/user/.fig/bin:/Users/user/.local/bin" }
+            }
+        }
+    ]
+}
