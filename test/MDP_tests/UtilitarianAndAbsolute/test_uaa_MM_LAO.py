@@ -1,10 +1,10 @@
-from Raspberry.Environment.Abstract.AbstractProblem import AbstractProblem
-from Raspberry.Planner.MDP_Solvers.MM_Heuristic import Solver
-import Raspberry.Environment.Abstract.AbstractGenerator as ag
-from Raspberry.Environment.Abstract.Absolute import Absolute
-from Raspberry.Environment.Abstract.Utilitarian import Utilitarian
+from EthicsPlanner.Environment.Abstract.AbstractProblem import AbstractProblem
+from EthicsPlanner.Planner.MDP_Solvers.MM_Heuristic import Solver
+import EthicsPlanner.Environment.Abstract.AbstractGenerator as ag
+from EthicsPlanner.Environment.Abstract.Absolute import Absolute
+from EthicsPlanner.Environment.Abstract.Utilitarian import Utilitarian
 import test.checkPolicy as checkPolicy
-from Raspberry.Planner.Log import Logger
+from EthicsPlanner.Planner.Log import Logger
 
 
 
@@ -34,6 +34,6 @@ def from_file(fileName, solStateTiles, solActions):
     new = ag.setupFunctionFromFile(fileName=fileName)
     mdp = AbstractProblem(setup=new, theories=[['absolute', 'utility']])
     bpsg = Solver().solve(mdp)
-    mdp.VisualiseCompleteGraph('tempCompGraph')
-    mdp.VisualiseExplicitGraph(bpsg, 'tempExpGraph')
+    #mdp.VisualiseCompleteGraph('tempCompGraph')
+    #mdp.VisualiseExplicitGraph(bpsg, 'tempExpGraph')
     checkPolicy.check(mdp, solStateTiles, solActions, bpsg.pi)

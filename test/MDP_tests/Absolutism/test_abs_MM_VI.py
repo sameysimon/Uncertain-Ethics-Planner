@@ -1,7 +1,7 @@
-from Raspberry.Environment.Abstract.AbstractProblem import AbstractProblem
-from Raspberry.Planner.MDP_Solvers.MM_ValueIteration import Multi_ValueIteration
-import Raspberry.Environment.Abstract.AbstractGenerator as ag
-from Raspberry.Environment.Abstract.Absolute import Absolute
+from EthicsPlanner.Environment.Abstract.AbstractProblem import AbstractProblem
+from EthicsPlanner.Planner.MDP_Solvers.MM_ValueIteration import Multi_ValueIteration
+import EthicsPlanner.Environment.Abstract.AbstractGenerator as ag
+from EthicsPlanner.Environment.Abstract.Absolute import Absolute
 import test.checkPolicy as checkPolicy
 
 

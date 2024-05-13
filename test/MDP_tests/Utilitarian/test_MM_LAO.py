@@ -1,6 +1,6 @@
-from Raspberry.Environment.Abstract.AbstractProblem import AbstractProblem
-from Raspberry.Planner.MDP_Solvers.MM_Heuristic import Solver
-import Raspberry.Environment.Abstract.AbstractGenerator as ag
+from EthicsPlanner.Environment.Abstract.AbstractProblem import AbstractProblem
+from EthicsPlanner.Planner.MDP_Solvers.MM_Heuristic import Solver
+import EthicsPlanner.Environment.Abstract.AbstractGenerator as ag
 import test.checkPolicy as checkPolicy
 
 
@@ -31,5 +31,5 @@ def from_file(fileName, solStateTiles, solActions):
     mdp = AbstractProblem(setup=new)
     bpsg = Solver().solve(mdp)
     #mdp.VisualiseCompleteGraph('tempCompGraph')
-    mdp.VisualiseExplicitGraph(bpsg, 'tempExpGraph')
+    #mdp.VisualiseExplicitGraph(bpsg, 'tempExpGraph')
     checkPolicy.check(mdp, solStateTiles, solActions, bpsg.pi)

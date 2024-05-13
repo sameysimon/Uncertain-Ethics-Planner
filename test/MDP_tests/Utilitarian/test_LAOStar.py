@@ -1,6 +1,6 @@
-from Raspberry.Planner.MDP_Solvers.iLAOStar import HeuristicSolver
-from Raspberry.Environment.Abstract.AbstractProblem import AbstractProblem
-import Raspberry.Environment.Abstract.AbstractGenerator as ag
+from EthicsPlanner.Planner.MDP_Solvers.iLAOStar import HeuristicSolver
+from EthicsPlanner.Environment.Abstract.AbstractProblem import AbstractProblem
+import EthicsPlanner.Environment.Abstract.AbstractGenerator as ag
 
 
 

@@ -1,6 +1,6 @@
-from Raspberry.Environment.Abstract.AbstractProblem import AbstractProblem
-from Raspberry.Planner.MDP_Solvers.SM_Heuristic import Singleton_HeuristicSolver
-import Raspberry.Environment.Abstract.AbstractGenerator as ag
+from EthicsPlanner.Environment.Abstract.AbstractProblem import AbstractProblem
+from EthicsPlanner.Planner.MDP_Solvers.SM_Heuristic import Singleton_HeuristicSolver
+import EthicsPlanner.Environment.Abstract.AbstractGenerator as ag
 import test.checkPolicy as checkPolicy
 
 

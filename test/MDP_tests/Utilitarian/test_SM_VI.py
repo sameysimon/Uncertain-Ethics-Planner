@@ -1,6 +1,6 @@
-from Raspberry.Environment.Abstract.AbstractProblem import AbstractProblem
-from Raspberry.Planner.MDP_Solvers.SM_ValueIteration import Singleton_ValueIteration
-import Raspberry.Environment.Abstract.AbstractGenerator as ag
+from EthicsPlanner.Environment.Abstract.AbstractProblem import AbstractProblem
+from EthicsPlanner.Planner.MDP_Solvers.SM_ValueIteration import Singleton_ValueIteration
+import EthicsPlanner.Environment.Abstract.AbstractGenerator as ag
 
 def test_crashTest():
 
