@@ -20,11 +20,11 @@ An abstract world environment has been made as a template for the below concepts
 * Multi-Moral MDPs contain moral theories in a lexicographic order, `mm_mdp.Theories`. Judgments from lower indexed theories are considered over any judgement from a greater indexed theory, no matter the extremity/probability of the judgement.
 * * Concrete in `AbstractMMMDP`.
 
-#### Moral SSPs
+#### Moral mdps
 
-* Moral SSPs contain moral theor(y/ies) plus a cost function with a discount. Defined in `MoralSSP.py`, they 
+* Moral mdps contain moral theor(y/ies) plus a cost function with a discount. Defined in `Moralmdp.py`, they 
 
-* You can randomly generate abstract tree SSPs with `AbstractGenerator.py` and store them in json.
+* You can randomly generate abstract tree mdps with `AbstractGenerator.py` and store them in json.
 
 ### Moral Theories
 Abstract moral theories contain most methods. For each environment, a concrete subclass is must be made to apply the ethical concepts to the environment.

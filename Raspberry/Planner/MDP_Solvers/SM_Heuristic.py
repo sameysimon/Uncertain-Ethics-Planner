@@ -1,6 +1,5 @@
 from Raspberry.Planner.Solution import BestSubGraph
 from Raspberry.Planner.Hypothetical import Retrospection
-from Raspberry.Planner.Logger import Log
 from Raspberry.Planner.MDP_Solvers.iLAOStar import HeuristicSolver
 from Raspberry.Environment.Result import AttackResult
 import numpy as np
@@ -10,24 +9,27 @@ import copy
 
 class Singleton_HeuristicSolver(HeuristicSolver):
     
-    def isConverged(self, mdp, bpsg:BestSubGraph):
-        V_ = copy.deepcopy(bpsg.V[self.theory.tag])
+    def isConverged(solver, mdp, bpsg:BestSubGraph):
+        V_ = copy.deepcopy(bpsg.V[solver.theory.tag])
         def visitState(s):
             nonlocal mdp, bpsg
-            self.ReviseAction(s, mdp, bpsg)
-        bpsg.DepthFirstSearch(visitState)
+            solver.ReviseAction(s, mdp, bpsg)
+        solver.DepthFirstSearch(mdp, bpsg, visitState)
         bpsg.update(mdp)
-        return self.theory.IsConverged(bpsg.V[self.theory.tag], V_)
+        return solver.theory.IsConverged(bpsg.V[solver.theory.tag], V_)
 
     def solve(solver, mdp, s0=0, bpsg=None, theoryTag='utility') -> BestSubGraph:
         if bpsg==None:
-            bpsg=BestSubGraph(startStateIndex=s0, ssp=mdp)
+            bpsg=BestSubGraph(startStateIndex=s0, mdp=mdp)
         solver.theory=mdp.getTheoryByTag(theoryTag)
         converged=False
+        solver.revisions=0
         i=0
         while not converged and i < 1000:
             bpsg = solver.FindAndRevise(mdp, bpsg)
             converged = solver.isConverged(mdp, bpsg)
+            if (len(bpsg.getUnexpandedStatesInBPSG(mdp)) > 0):
+                converged=False
             i+=1
         
         return bpsg
@@ -42,7 +44,6 @@ class Singleton_HeuristicSolver(HeuristicSolver):
 
         values = []
         for a in actions:
-            r=0
             successors = mdp.getActionSuccessors(state, a)
             values.append(solver.theory.Gather(successors, bpsg.V[solver.theory.tag]))
 
@@ -55,5 +56,5 @@ class Singleton_HeuristicSolver(HeuristicSolver):
         # Update policy and Value function.
         bestAction = actions[bestActionIdx]
         bpsg.pi[stateIndex] = bestAction
-        mdp.setValuation(bpsg.V, mdp.states[stateIndex], bestAction)
+        #mdp.setValuation(bpsg.V, mdp.states[stateIndex], bestAction)
         

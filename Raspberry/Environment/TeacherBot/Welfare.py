@@ -13,9 +13,9 @@ class Wellbeing(Utilitarianism):
         props = successor.targetState.props
         strDelta = 0
         for i in range(props['totalStudents']):
-            strDelta+= (oldProps['stress'][i] - props['stress'][i])
-        
-        strDelta /= props['totalStudents']
+            d = (oldProps['stress'][i] - props['stress'][i])
+            if d>0 or (d < 0 and props['stress'][i] >=3):    
+                strDelta+= d
         return strDelta
     
     def StateHeuristic(self, state:MDP.State):
@@ -34,5 +34,5 @@ class Wellbeing(Utilitarianism):
             util += min(sessions, distToMax)*0.7
         
         # Looking for the average number of grade ups across students.
-        h = util / (state.props['totalStudents'])
+        h = util
         return h

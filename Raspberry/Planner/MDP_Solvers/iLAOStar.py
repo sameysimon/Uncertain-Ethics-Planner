@@ -5,26 +5,30 @@ import copy
 from tabulate import tabulate
 
 class HeuristicSolver:
-    def isConverged(self, mdp, bpsg:BestSubGraph):
+    def isConverged(solver, mdp, bpsg:BestSubGraph):
         V_ = copy.deepcopy(bpsg.V)
         def visitState(s):
             nonlocal mdp, bpsg
-            self.ReviseAction(s, mdp, bpsg)
+            solver.ReviseAction(s, mdp, bpsg)
 
-        bpsg.DepthFirstSearch(visitState)
+        solver.DepthFirstSearch(mdp, bpsg, visitState)
         bpsg.update(mdp)
         return mdp.isConverged(bpsg.V, V_)
 
-    def solve(solver, problem, s0=0, bpsg=None, cost='utility',discount=0.9) -> BestSubGraph:
+    def solve(solver, mdp, s0=0, bpsg=None, cost='utility',discount=0.9) -> BestSubGraph:
         if bpsg==None:
-            bpsg=BestSubGraph(startStateIndex=s0, ssp=problem)
+            bpsg=BestSubGraph(startStateIndex=s0, mdp=mdp)
         solver.costTag=cost
         solver.discount=discount
+        solver.revisions=0
         converged=False
         i=0
         while not converged and i < 1000:
-            bpsg = solver.FindAndRevise(problem, bpsg)
-            converged = solver.isConverged(problem, bpsg)
+            bpsg = solver.FindAndRevise(mdp, bpsg)
+
+            converged = solver.isConverged(mdp, bpsg)
+            if (len(bpsg.getUnexpandedStatesInBPSG(mdp)) > 0):
+                converged=False
             i+=1
         
         return bpsg
@@ -33,13 +37,14 @@ class HeuristicSolver:
         isUnexpandedStates = True
         while isUnexpandedStates:
             # Run visitState on all states in Depth-First, post-order fashion.
-            def visitState(stateInd, probability):
+            def visitState(stateInd):
                 nonlocal mdp, bpsg
                 if not (stateInd in bpsg.expandedStates):
                     bpsg.expandedStates.append(stateInd)
                     newStates = mdp.expandState(mdp.states[stateInd])
                     bpsg.updateValuation(mdp, newStates) # Inits heuristic for new states
                 # Select and set best action in policy/value function
+                solver.revisions+=1
                 solver.ReviseAction(stateInd, mdp, bpsg)
                 
             # Revise policy in depth-first-search
@@ -48,6 +53,9 @@ class HeuristicSolver:
             bpsg.update(mdp)
             # Check for more unexpanded states in solution graph
             isUnexpandedStates = len(bpsg.getUnexpandedStatesInBPSG(mdp)) > 0
+            # Update Valuation Function TODO 
+            for idx in bpsg.pi.keys():
+                mdp.setValuation(bpsg.V, mdp.states[idx], bpsg.pi[idx])
 
         # Return solution graph result, and non-acceptability of solution
         return bpsg
@@ -76,20 +84,20 @@ class HeuristicSolver:
 
         # Update policy and Value function.
         bpsg.pi[stateIndex] = bestAction
-        mdp.setValuation(bpsg.V, mdp.states[stateIndex], bestAction)
+        #mdp.setValuation(bpsg.V, mdp.states[stateIndex], bestAction)
 
-        bpsg.V[costTheory.tag][stateIndex] = costs[bestActionIdx]
+
 
     def DepthFirstSearch(solver, mdp, bpsg, onVisitFn):
-        def visit(stateInd, colours, p, fn=None):
+        def visit(stateInd, colours, fn=None):
             colours[stateInd] = 'v'
             if stateInd in bpsg.pi.keys():
                 for s in mdp.getActionSuccessors(mdp.states[stateInd], bpsg.pi[stateInd]):
                     childColour = colours.setdefault(s.targetState.id, 'u')
                     if childColour == 'u':
-                        visit(s.targetState.id, colours, p*s.probability, fn)
+                        visit(s.targetState.id, colours, fn)
             if fn:
-                fn(stateInd, p)
+                fn(stateInd)
             
         colours = {}
-        visit(0,colours, 1, onVisitFn)
+        visit(0,colours, onVisitFn)

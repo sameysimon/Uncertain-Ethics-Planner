@@ -5,16 +5,16 @@ import Raspberry.Environment.Abstract.AbstractGenerator as ag
 def test_crashTest():
 
     d = ag.setupFunctionFromFile('test/SavedAbstractEnvs/noChoice.json')
-    ssp = AbstractProblem(setup=d)
+    mdp = AbstractProblem(setup=d)
     solver = Singleton_ValueIteration()
-    pi = solver.solve(ssp)
+    pi = solver.solve(mdp)
 
 
 def test_ProbabilisticDoubleAction():
     d = ag.setupFunctionFromFile('test/SavedAbstractEnvs/probDoubleAction.json')
-    ssp = AbstractProblem(setup=d)
+    mdp = AbstractProblem(setup=d)
     solver = Singleton_ValueIteration()
-    pi = solver.solve(ssp)
+    pi = solver.solve(mdp)
     assert pi[0]=='B'
 
 

@@ -23,7 +23,7 @@ class Tile(MoralTheory):
         return AttackResult.DRAW
 
     # Use estimates in value function to build expected utility of judgement + successors
-    def EstimateUnion(self, V, judgement, successors, ssp):
+    def EstimateUnion(self, V, judgement, successors, mdp):
         return judgement
 
     def EmptyEstimate(self):

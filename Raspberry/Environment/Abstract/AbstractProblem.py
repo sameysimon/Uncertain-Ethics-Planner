@@ -1,12 +1,13 @@
 import Raspberry.Environment.GraphVisualiser as v
 from Raspberry.Environment.MultiMoralMDP import MM_MDP
 from Raspberry.Environment.Abstract.Utilitarian import Utilitarian
+from Raspberry.Environment.Abstract.Absolute import Absolute
 import copy
 
 
 class AbstractProblem(MM_MDP):
 
-    def __init__(self, setup, theories=[[Utilitarian()]]) -> None:
+    def __init__(self, setup, theories=[['utility']]) -> None:
         MM_MDP.__init__(self)
         self.world = {}
         if setup:
@@ -15,6 +16,7 @@ class AbstractProblem(MM_MDP):
             self.world = AbstractProblem.defaultSetup()
         self.stateFactory({'tile':0, 'utility':self.world['utilities'][0], 'forbidden':False}) # Create at least one initial state
         self.rules = [AbstractProblem.GraphMove, AbstractProblem.UtilityResult] # Add a transition rule
+        self.Theories = [Utilitarian(), Absolute()]
         self.TheoryClasses = theories # Set the ethical theories
 
     def getActions(self, state:MM_MDP.State) -> list:

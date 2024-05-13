@@ -11,7 +11,6 @@ class EducationUtility(Utilitarianism):
         avgGrade = 0
         for i in range(props['totalStudents']):
             avgGrade+=(props['grades'][i] - oldProps['grades'][i])
-        avgGrade /= props['totalStudents']
 
         return avgGrade
     
@@ -29,9 +28,9 @@ class EducationUtility(Utilitarianism):
         for i in range(0, state.props['totalStudents']):
             sessions = totalWeeks+1 if i>= state.props['student'] else totalWeeks
             distToMax = state.props['maxGrade'] - state.props['grades'][i]
-            gradeUps += min(sessions, distToMax)*0.7
+            gradeUps += min(sessions, distToMax)*0.4
             #gradeUps += state.props['standardChances'][i]
         
         # Looking for the average number of grade ups across students.
-        h = gradeUps / (state.props['totalStudents'])
+        h = gradeUps
         return h

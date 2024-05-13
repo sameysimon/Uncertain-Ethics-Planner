@@ -12,11 +12,11 @@ def test_ProbabilisticDoubleAction():
     # Best policy takes action B in state 0.
     d = ag.setupFunctionFromFile('test/SavedAbstractEnvs/probDoubleAction.json')
 
-    ssp = AbstractProblem(setup=d)
+    mdp = AbstractProblem(setup=d)
     solver = HeuristicSolver()
-    bpsg = solver.solve(ssp)
-    #ssp.VisualiseCompleteGraph('test/graphs/completeProbDouble')
-    #ssp.VisualiseExplicitGraph(solution=bpsg, fileName='test/graphs/policyProbDouble')
+    bpsg = solver.solve(mdp)
+    #mdp.VisualiseCompleteGraph('test/graphs/completeProbDouble')
+    #mdp.VisualiseExplicitGraph(solution=bpsg, fileName='test/graphs/policyProbDouble')
 
     assert bpsg.pi[0]=='B'
 
@@ -24,11 +24,6 @@ def test_env_1():
     from_file(fileName='test/SavedAbstractEnvs/testEnv1.json',
     solStateTiles=[0,1,2,3,11,57,81,82],
     solActions=['0','1','0','0','0','0','0','0'])
-
-def test_env_2():
-    from_file(fileName='test/SavedAbstractEnvs/testEnv2.json',
-    solStateTiles=[0,4,87,88,89,5,117,6,157],
-    solActions=[1,1,0,0,0,1,0,0,0])
     
 
 

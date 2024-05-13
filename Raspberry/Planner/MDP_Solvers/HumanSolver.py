@@ -2,11 +2,11 @@ from Raspberry.Planner.Solution import BestSubGraph
 from Raspberry.Planner.Hypothetical import Retrospection
 import numpy as np
 class Solver:
-    def solve(solver, problem, s0=0, bpsg=None):
+    def solve(solver, mdp, s0=0, bpsg=None):
         if bpsg==None:
-            bpsg=BestSubGraph(startStateIndex=s0, ssp=problem)
+            bpsg=BestSubGraph(startStateIndex=s0, mdp=mdp)
         
-        solver.FindAndRevise(problem, bpsg)
+        solver.FindAndRevise(mdp, bpsg)
         return bpsg
 
     def FindAndRevise(solver, mdp, bpsg) -> BestSubGraph:

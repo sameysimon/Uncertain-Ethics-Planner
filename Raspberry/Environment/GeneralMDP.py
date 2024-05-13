@@ -60,10 +60,6 @@ class MDP(ABC):
             state.successors[action].append(successorState)
         return state.successors[action]
 
-    # I don't remember what this does :(
-    def getPropStr(stateProps):
-        pass
-
     def stateFactory(self, stateProps):
         propStr = str(stateProps)
         if propStr in self.__statePropIndex.keys():
@@ -75,7 +71,6 @@ class MDP(ABC):
         return self.states[self.__statePropIndex[propStr]]
 
     def expandState(self, state:State):
-        # MAKE SURE THIS WORKS
         self.__expandedStates.append(state.id)
         oldStateCount = len(self.states)
         actions = self.getActions(state)
@@ -89,20 +84,3 @@ class MDP(ABC):
             newStates.append(self.states[i])
         return newStates
 
-    def printPolicy(ssp, pi):
-        return
-
-    def getPaths(self, pi, currentState=None, currentPath=[]):
-        if currentState.id in pi.keys():
-            successors = self.getActionSuccessors(currentState, pi[currentState.id])
-            if len(successors)==0:
-                yield currentPath
-            for childSuccessor in successors:
-                if not (childSuccessor.targetState.id in currentPath):
-                    cpy = deepcopy(currentPath)
-                    cpy.append(childSuccessor)
-                    yield from self.getPaths(pi, childSuccessor.targetState, cpy)
-                else:
-                    yield currentPath
-        else:        
-            yield currentPath

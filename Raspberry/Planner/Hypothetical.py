@@ -1,9 +1,9 @@
 from Raspberry.Environment.MultiMoralMDP import MM_MDP
 from Raspberry.Environment.Result import AttackResult
 from Raspberry.Planner.Solution import BestSubGraph
+from Raspberry.Planner.Log import Logger
 import numpy as np
 import pandas as pd
-from Log import Logger
 
 # Currently, only works on Multi-Moral MM_MDPs.
 class Retrospection:
@@ -14,39 +14,39 @@ class Retrospection:
             self.targetSuccessor=target
 
 
-    def Retrospect(ssp:MM_MDP, state:MM_MDP.State, actions:list, actionSuccessors:list, V):
+    def Retrospect(mdp:MM_MDP, state:MM_MDP.State, actions:list, actionSuccessors:list, V):
         actionAttacks = [[] for _ in actions]
         for i in range(len(actions)):
             oneAction, oneSuccessors = actions[i], actionSuccessors[i]
             for j in range(i+1, len(actions)):
                 twoAction, twoSuccessors = actions[j], actionSuccessors[j]
-                oneAttacked, twoAttacked = Retrospection.__ArgumentPair(ssp,V,state,oneAction,oneSuccessors,twoAction,twoSuccessors)
+                oneAttacked, twoAttacked = Retrospection.__ArgumentPair(mdp,V,state,oneAction,oneSuccessors,twoAction,twoSuccessors)
                 actionAttacks[i].extend(oneAttacked)
                 actionAttacks[j].extend(twoAttacked)        
         
         nonAcceptability = [0 for _ in actions]
         for idx, attacks in enumerate(actionAttacks):
             # Finds cumulative probability of attacked successors for action
-            attackedSuccessors = set([a.targetSuccessor for a in attacks])
-            na = Retrospection.GetProbability(attackedSuccessors)
+            na = Retrospection.GetProbability(attacks)
             nonAcceptability[idx] = na
+
         if Logger.debug:
-            Logger.RetrospectionTable(ssp, state, actions, actionSuccessors,actionAttacks,nonAcceptability, V)
+            Logger.RetrospectionTable(mdp, state, actions, actionSuccessors,actionAttacks,nonAcceptability, V)
         return nonAcceptability
     
-    def GetProbability(successors):
+    def GetProbability(attacks):
         p = 0
-        for s in successors:            
+        for s in [a.targetSuccessor for a in attacks]:            
             p+=s.probability
         return p
    
-    def __ArgumentPair(ssp:MM_MDP, V:list, state:MM_MDP.State, oneAction, oneSuccessors, twoAction, twoSuccessors):
+    def __ArgumentPair(mdp:MM_MDP, V:list, state:MM_MDP.State, oneAction, oneSuccessors, twoAction, twoSuccessors):
         oneAttacks, twoAttacks = [],[]
 
         # Critical Question 2: Check for Defence (compare actions)
-        oneExpectation = ssp.ActionExpectation(state, V, successors=oneSuccessors)
-        twoExpectation = ssp.ActionExpectation(state, V, successors=twoSuccessors)
-        result, tClass = ssp.CompareExpectations(oneExpectation, twoExpectation)
+        oneExpectation = mdp.ActionExpectation(state, V, successors=oneSuccessors)
+        twoExpectation = mdp.ActionExpectation(state, V, successors=twoSuccessors)
+        result, tClass = mdp.CompareExpectations(oneExpectation, twoExpectation)
 
         # 0 indicates the argument is NOT vulnerable to attack; 1 means it is!
         oneActVul, twoActVul = Retrospection.vulnerable(result)
@@ -54,15 +54,15 @@ class Retrospection:
         # Critical Question 1: Check for inequality (compare arguments/successors)
         for oneIdx, oneSuccessor in enumerate(oneSuccessors):
             for twoIdx, twoSuccessor in enumerate(twoSuccessors):
-                oneE = ssp.SuccessorExpectation(V, state, oneAction, oneSuccessor)
-                twoE = ssp.SuccessorExpectation(V, state, twoAction, twoSuccessor)
-                cq1, t = ssp.CompareExpectations(oneE, twoE, maxClass=tClass)
+                oneE = mdp.SuccessorExpectation(V, state, oneAction, oneSuccessor)
+                twoE = mdp.SuccessorExpectation(V, state, twoAction, twoSuccessor)
+                cq1, t = mdp.CompareExpectations(oneE, twoE, maxClass=tClass)
 
                 # Track Attacker and Defender Non Acceptability
-                if cq1==AttackResult.ATTACK and twoActVul:
+                if (cq1==AttackResult.ATTACK or cq1==AttackResult.DILEMMA) and twoActVul:
                     a = Retrospection.Attack(source=oneSuccessor, target=twoSuccessor)
                     twoAttacks.append(a)
-                elif cq1==AttackResult.REVERSE and oneActVul:
+                if (cq1==AttackResult.REVERSE or cq1==AttackResult.DILEMMA) and oneActVul:
                     a = Retrospection.Attack(source=twoSuccessor, target=oneSuccessor)
                     oneAttacks.append(a)
         
@@ -83,29 +83,5 @@ class Retrospection:
         elif result==AttackResult.ABSOLUTE_REVERSE:
             return True, False # Automatic attack on all attacker arguments
         return vOne, vTwo
-
-
-    def __ArgumentPathPair(ssp:MM_MDP, onePaths, twoPaths):
-        oneProbability = [s.probability for s in onePaths]
-        twoProbability = [s.probability for s in twoPaths]
-
-        # Critical Question 2: Check for difference of expectation
-        oneExpectation = ssp.ManyPathsExpectation(onePaths, oneProbability)
-        twoExpectation = ssp.ManyPathsExpectation(twoPaths, twoProbability)
-        result, t = ssp.CompareExpectations(oneExpectation, twoExpectation)
-        oneVulnerable, twoVulnerable = Retrospection.vulnerable(result)
-
-        # Critical Question 1: Check for inequality (compare arguments/successors)
-        for oneIdx, oneP in enumerate(onePaths):
-            for twoIdx, twoP in enumerate(twoPaths):
-                oneE = ssp.PathExpectation(oneP)
-                twoE = ssp.PathExpectation(twoP)
-                cq1, t = ssp.CompareExpectations(oneE, twoE)
-                
-                # Track Attacker and Defender Non Acceptability
-                if cq1==AttackResult.ATTACK:
-                    twoNonAccept += twoProbability[twoIdx]*twoVulnerable
-                elif cq1==AttackResult.REVERSE:
-                    oneNonAccept += oneProbability[oneIdx]*oneVulnerable
 
 

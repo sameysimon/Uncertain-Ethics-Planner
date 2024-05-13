@@ -18,8 +18,9 @@ class MM_MDP(MDP, ABC):
         expect = self.EmptyValuation()
         t:MoralTheory
         for C in self.TheoryClasses:
-            for t in C:
-                expect[t.tag] = t.Gather([successor], V[t.tag],probabilities=[1])
+            for tag in C:
+                t=self.getTheoryByTag(tag)
+                expect[tag] = t.Gather([successor], V[tag],probabilities=[1])
         return expect
 
     def ActionExpectation(self, state, V, action=0, successors=0) -> dict:
@@ -30,33 +31,9 @@ class MM_MDP(MDP, ABC):
 
         expect = self.EmptyValuation()
         for C in self.TheoryClasses:
-            for t in C:
+            for tag in C:
+                t=self.getTheoryByTag(tag)
                 expect[t.tag] = t.Gather(successors, V[t.tag])
-        return expect
-
-    def ManyPathsExpectation(self, state, paths, probabilities):
-        for idx, p in enumerate(paths):
-            paths[idx] = self.PathExpectation(p)
-        expect = self.EmptyValuation()
-        for C in self.TheoryClasses:
-            for t in C:
-                expect[t.tag] = t.EstimateUnion(t.JudgeState(state), paths, probabilities, self)
-        return expect
-
-    def PathExpectation(self, path, probability) -> dict:
-        j = {}
-        for C in self.TheoryClasses:
-            for t in C:
-                for idx in range(len(path)-1):
-                    j[t.tag] = t.IntegrateJudgments(t.JudgeState(path[idx].targetState), j[t.tag])
-
-        expect = self.EmptyValuation()
-
-        # Make the total judgement a probabilistic estimate
-        for C in self.TheoryClasses:
-            for t in C:
-                expect[t.tag] = t.EstimateUnion(j[t.tag], [expect[t.tag]], [probability], self)
-
         return expect
 
     def CompareExpectations(self, expectOne, expectTwo, maxClass=None) -> tuple:
@@ -73,7 +50,8 @@ class MM_MDP(MDP, ABC):
         for classIdx in range(0,maxClass+1):
             C=self.TheoryClasses[classIdx]
             final = AttackResult.DRAW
-            for t in C:
+            for tag in C:
+                t=self.getTheoryByTag(tag)
                 r = t.CompareEstimates(expectOne[t.tag], expectTwo[t.tag])
                 if r != AttackResult.DRAW:
                     if final == AttackResult.DRAW:
@@ -88,36 +66,34 @@ class MM_MDP(MDP, ABC):
 
     def EmptyValuation(self) -> dict:
         v = {}
-        for C in self.TheoryClasses:
-            for t in C:
-                v[t.tag] = t.EmptyEstimate()
+        for t in self.Theories:
+            v[t.tag] = t.EmptyEstimate()
         return v
 
     def getStateHeuristic(self, state: MDP.State) -> dict:
         h = {}
-        for C in self.TheoryClasses:
-            for t in C:
-                h[t.tag] = t.StateHeuristic(state)
+        for t in self.Theories:
+            h[t.tag] = t.StateHeuristic(state)
         return h
     
     # Update the valuation of state in V to match the successors of action
     def setValuation(self, V, state, action) -> dict:
         successors = self.getActionSuccessors(state, action)
-        for C in self.TheoryClasses:
-            for t in C:
-                V[t.tag][state.id] = t.Gather(successors, V[t.tag])
+        for t in self.Theories:
+            V[t.tag][state.id] = t.Gather(successors, V[t.tag])
         return V
 
-    def isConverged(self, V, V_, epsilon=0.001) -> bool:
-        for C in self.TheoryClasses:
-            for t in C:
-                if not t.IsConverged(V[t.tag], V_[t.tag], epsilon):
-                    return False
+    def isConverged(self, V, V_, theories=None, epsilon=0.001) -> bool:
+        if theories==None:
+            theories=self.Theories
+        for t in theories:
+            if not t.IsConverged(V[t.tag], V_[t.tag], epsilon):
+                return False
         return True
         
     def getTheoryByTag(self, tag) -> MoralTheory:
-        for C in self.TheoryClasses:
-            for t in C:
-                if t.tag==tag:
-                    return t
+        for t in self.Theories:
+            if t.tag==tag:
+                return t
         return None
+    

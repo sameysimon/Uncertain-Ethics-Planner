@@ -46,20 +46,10 @@ class Utilitarianism(MoralTheory):
 
 
     def EstimateString(self, estimate):
-        return str(round(estimate, 2))
+        return str(round(estimate, 3))
 
     def GatherString(self, successors, E):
         out = []
         for s in successors:
-            out.append("{p}* ({j}+{g}*{k})".format(p=s.probability, j=self.JudgeTransition(s), g=self.discount, k=E[s.targetState.id]))
+            out.append("{p}* ({j}+{g}*{k})".format(p=s.probability, j=self.JudgeTransition(s), g=self.discount, k=self.EstimateString(E[s.targetState.id])))
         return out
-
-    # DEPRECATED
-    # Use estimates in value function to build expected utility of judgement + successors
-    # In effect, passes in (Judgement, [(estimate, probability)])
-    # This is used as to E = R(s) + Sum_s'[P(s,a,s') * E(s') * discount]
-    def EstimateUnion(self, judgement, estimates, probabilities, ssp):
-        union = judgement
-        for i in range(len(estimates)):
-            union += self.discount * probabilities[i] * estimates[i]
-        return union

@@ -36,3 +36,10 @@ class Absolutism(MoralTheory):
         if estimate:
             return 't'
         return 'f'
+
+    def GatherString(self, successors, E):
+        out = []
+        for s in successors:
+            out.append("{j} OR {k}".format(j=self.JudgeTransition(s), k=E[s.targetState.id]))
+        return out
+

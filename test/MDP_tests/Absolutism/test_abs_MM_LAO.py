@@ -7,14 +7,14 @@ import test.checkPolicy as checkPolicy
 
 def test_crashTest():
     d = ag.setupFunctionFromFile('test/SavedAbstractEnvs/noChoice.json')
-    ssp = AbstractProblem(setup=d,theories=[[Absolute()]])
+    mdp = AbstractProblem(setup=d,theories=[['absolute']])
     solver = Solver()
-    pi = solver.solve(ssp)
+    pi = solver.solve(mdp)
 
 
 def test_ProbabilisticDoubleAction():
     d = ag.setupFunctionFromFile('test/SavedAbstractEnvs/probDoubleAction.json')
-    mdp = AbstractProblem(setup=d,theories=[[Absolute()]])
+    mdp = AbstractProblem(setup=d,theories=[['absolute']])
     solver = Solver()
     bpsg = solver.solve(mdp)
     mdp.VisualiseExplicitGraph(bpsg, 'tempExpGraph')
@@ -34,7 +34,7 @@ def test_env_2():
 
 def from_file(fileName, solStateTiles, solActions):
     new = ag.setupFunctionFromFile(fileName=fileName)
-    mdp = AbstractProblem(setup=new,theories=[[Absolute()]])
+    mdp = AbstractProblem(setup=new,theories=[['absolute']])
     bpsg = Solver().solve(mdp)
     #mdp.VisualiseCompleteGraph('tempCompGraph')
     mdp.VisualiseExplicitGraph(bpsg, 'tempExpGraph')

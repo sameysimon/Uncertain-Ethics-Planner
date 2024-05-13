@@ -19,6 +19,10 @@ def VisualiseSolutionGraph(mdp, solution, fileName='SolutionGraph'):
             aStr="V_a={utilValue}\n".format(
             utilValue=solution.V['absolute'][s]
             )
+        if 'wellbeing' in solution.V.keys():
+            aStr="V_a={wValue}\n".format(
+            wValue=solution.V['wellbeing'][s]
+            )
         l = l + uStr + aStr
         stateLabels[s] = l
 
@@ -27,9 +31,9 @@ def VisualiseSolutionGraph(mdp, solution, fileName='SolutionGraph'):
         for a in stateActions[s]:
             actionTag= "{ac}\n".format(ac=a)
             successors = mdp.getActionSuccessors(mdp.states[s], a, readOnly=True)
-            for C in mdp.TheoryClasses:
-                for t in C:
-                    actionTag += t.tag + ": " + t.EstimateString(t.Gather(successors, solution.V[t.tag])) + "\n"
+            
+            for t in mdp.Theories:
+                actionTag += t.tag + ": " + t.EstimateString(t.Gather(successors, solution.V[t.tag])) + "\n"
             
             stateActionLabels["a{action}s{state}".format(action=a, state=s)] = actionTag
 
@@ -71,9 +75,10 @@ def VisualiseExplicitGraph(mdp,solution,fileName='ExplicitGraph'):
             actionTag, doneTag = "{ac}\n".format(ac=a), ""
             successors = mdp.getActionSuccessors(mdp.states[s], a, readOnly=True)
             for C in mdp.TheoryClasses:
-                for t in C:
+                for tag in C:
+                    t = mdp.getTheoryByTag(tag)
                     actionTag += t.tag + ": " + t.EstimateString(t.Gather(successors, solution.V[t.tag])) + "\n"
-            
+            actionTag=actionTag[:-3]
             if s in solution.pi.keys():
                 doneTag=""
                 if solution.pi[s]==a:

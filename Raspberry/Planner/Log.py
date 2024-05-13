@@ -1,32 +1,10 @@
-from datetime import datetime
 import numpy as np
 import pandas as pd
 class Logger:
-    history = []
-    silent = False
     debug=False
-    def add(new):
-        if Logger.silent:
-            return
-        Logger.history.append(new)
-    
-    def ToString():
-        s = ""
-        for l in Logger.history:
-            s += l
-        return s
-
-    def clear():
-        Logger.history = []
-
-    def FlushToFile():
-        f = open('TrapTest.txt', 'a')
-        f.write(Logger.ToString())
-        f.close()
-        Logger.clear()
 
     # Retrospection Table!
-    def RetrospectionTable(ssp, state, actions, actionSuccessors, attackedArgs, nonAcceptability, V):
+    def RetrospectionTable(mdp, state, actions, actionSuccessors, attackedArgs, nonAcceptability, V):
         # Generate columns
         bestaIdx = np.argmin(nonAcceptability)
 
@@ -54,24 +32,23 @@ class Logger:
             row.append(str(successor.probability))
         Logger.__runOnActionSuccessor(actions, actionSuccessors, addProbability)
 
-        for C in ssp.TheoryClasses:
-            for t in C:
-                # Add the equation
-                index.append(t.tag)
-                row = []
-                rows.append(row)
-                for aIdx in range((len(actions))):
-                    r = t.GatherString(actionSuccessors[aIdx], V[t.tag])
-                    row.extend(r)
+        for t in mdp.Theories:
+            # Add the equation
+            index.append(t.tag)
+            row = []
+            rows.append(row)
+            for aIdx in range((len(actions))):
+                r = t.GatherString(actionSuccessors[aIdx], V[t.tag])
+                row.extend(r)
 
-                # Add the 'summed' action result
-                row = []
-                rows.append(row)
-                index.append(t.tag + "=")
-                def addToRow(aIdx, action, successor):
-                    nonlocal row, V
-                    row.append(t.EstimateString(t.Gather(actionSuccessors[aIdx], V[t.tag])))
-                Logger.__runOnActionSuccessor(actions, actionSuccessors, addToRow)
+            # Add the 'summed' action result
+            row = []
+            rows.append(row)
+            index.append(t.tag + "=")
+            def addToRow(aIdx, action, successor):
+                nonlocal row, V
+                row.append(t.EstimateString(t.Gather(actionSuccessors[aIdx], V[t.tag])))
+            Logger.__runOnActionSuccessor(actions, actionSuccessors, addToRow)
                 
 
         row = []   
@@ -98,12 +75,12 @@ class Logger:
 
         df = pd.DataFrame(rows, columns=columns,index=index)
 
-        Logger.saveToFile(state, actions, actionSuccessors, df.to_html())
+        Logger.saveToFile(mdp, state, actions, actionSuccessors, df.to_html())
         i = input('Retrospection Table Built. Enter To Continue; Q to exit Debug mode.')
         Logger.debug = i!='Q'
             
 
-    def saveToFile(state, actions, actionSuccessors, t):
+    def saveToFile(mdp, state, actions, actionSuccessors, t):
         with open('template.html', 'r') as file:
             original = file.read()
 
@@ -116,6 +93,11 @@ class Logger:
         insert = modified.find(tagTable)
         insert+=len(tagTable)
         modified = modified[:insert] + t + modified[insert:]
+
+        tagTable = "<div class='theories'>"
+        insert = modified.find(tagTable)
+        insert+=len(tagTable)
+        modified = modified[:insert] + str(mdp.TheoryClasses) + modified[insert:]
 
         tagTable = "<div class='sProps'>"
         insert = modified.find(tagTable)

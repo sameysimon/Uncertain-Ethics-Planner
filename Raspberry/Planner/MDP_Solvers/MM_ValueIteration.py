@@ -3,45 +3,45 @@
 from Raspberry.Environment.Result import AttackResult
 from Raspberry.Environment.MultiMoralMDP import MM_MDP
 from Raspberry.Planner.Hypothetical import Retrospection
-from Raspberry.Planner.MDP_Solvers.ValueIteraton import ValueIteration
 import numpy as np
 import copy
 
 class Multi_ValueIteration():
     updateCount=0
 
-    def solve(solver, problem:MM_MDP) -> dict:
-        if not problem.makeAllStatesExplicit():
+    def solve(solver, mdp:MM_MDP) -> dict:
+        if not mdp.makeAllStatesExplicit():
             print('Problem is too large to be solved with Value Iteration.')
             return {}
-
+        solver.revisions=0
         converged=False
         i=0
         E = {}
-        for s in problem.states:
-            Multi_ValueIteration.appendToE(E, problem.EmptyValuation())
+        for s in mdp.states:
+            Multi_ValueIteration.appendToE(E, mdp.EmptyValuation())
         pi={}
         while not converged:
             E_ = copy.deepcopy(E)
-            for s in problem.states:
-                actions = problem.getActions(s)
+            for s in mdp.states:
+                actions = mdp.getActions(s)
                 if len(actions)==0:
                     continue
-                actionSuccessors = [problem.getActionSuccessors(s,a) for a in actions]
-                nonAcceptability = Retrospection.Retrospect(problem, s, actions, actionSuccessors, E)
+                actionSuccessors = [mdp.getActionSuccessors(s,a) for a in actions]
+                nonAcceptability = Retrospection.Retrospect(mdp, s, actions, actionSuccessors, E_) # If passing E, then updating in-place
+                solver.revisions+=1
                 bestAction = actions[np.argmin(nonAcceptability)]
                 pi[s.id]=bestAction
-                problem.setValuation(E,s,bestAction)
-            converged = problem.isConverged(E, E_)
-        
+                mdp.setValuation(E,s,bestAction)
+            converged = mdp.isConverged(E, E_,theories=solver.getRelevantTheories(mdp))
+        solver.V=E
         return pi
 
-    def actionEstimates(solver, state, problem, E):
+    def actionEstimates(solver, state, mdp, E):
         l = []
-        actions = problem.getActions(state)
+        actions = mdp.getActions(state)
         for a in actions:
-            successors = problem.getActionSuccessors(state, a)
-            l.append(problem.Theory.Gather(successors, E))
+            successors = mdp.getActionSuccessors(state, a)
+            l.append(mdp.Theory.Gather(successors, E))
         return l
 
     def preferred(solver, l, theory):
@@ -57,3 +57,10 @@ class Multi_ValueIteration():
     def appendToE(E, theoryValues:dict):
         for tag, value in theoryValues.items():
             E.setdefault(tag,[]).append(value)
+
+    def getRelevantTheories(solver, mdp:MM_MDP):
+        l=[]
+        for C in mdp.TheoryClasses:
+            for t in C:
+                l.append(mdp.getTheoryByTag(t))
+        return l

@@ -1,18 +1,24 @@
 from Raspberry.Environment.MultiMoralMDP import MM_MDP
-from Raspberry.Environment.TeacherBot.Utilitarian import EducationUtility
+from Raspberry.Environment.TeacherBot.Performance import EducationUtility
+from Raspberry.Environment.TeacherBot.Welfare import Wellbeing
+from Raspberry.Environment.TeacherBot.Absolute import NoLies
 import Raspberry.Environment.GraphVisualiser as v
 from copy import deepcopy
 from enum import Enum
 
 class TeacherProblem(MM_MDP):
 
-    def __init__(self, initialProps=None, theoryClasses=[[EducationUtility()]]) -> None:
+    def __init__(self, initialProps=None, horizon=None, theoryClasses=[['utility']]) -> None:
         super().__init__()
         if initialProps==None:
             initialProps=TeacherProblem.defaultProps
+        if not horizon==None:
+            initialProps['totalWeeks'] = horizon
         self.stateFactory(initialProps) # Create at least one initial state
-        self.rules = [TeacherProblem.Standard, TeacherProblem.PosCompare, TeacherProblem.NegCompare, TeacherProblem.NextSession] # Add a transition rule
+        self.rules = [TeacherProblem.FinalSession, TeacherProblem.Standard, TeacherProblem.PosCompare, TeacherProblem.NegCompare, TeacherProblem.NextSession] # Add a transition rule
+        self.Theories = [EducationUtility(), NoLies(), Wellbeing()]
         self.TheoryClasses=theoryClasses
+    
     defaultProps = {
             'week':1,
             'student':0,
@@ -56,7 +62,8 @@ class TeacherProblem(MM_MDP):
         if self.__isStudentLowest(state.props):
             # If current student is lowest score, must lie to positively compare -> pos_lie
             #   can honestly negatively compare -> neg_hon
-            return ['standard', 'pos_lie', 'neg_hon']
+            return ['standard','neg_hon',  'pos_lie']
+            #return ['neg_hon', 'standard', 'pos_lie']
         else:
             # If current student is not lowest scored, can honestly positively compare -> pos_hon
             #   must lie to negatively compare -> neg_lie
@@ -69,27 +76,12 @@ class TeacherProblem(MM_MDP):
             return [(props, prob)]
         # Standard action, +0.1 chance of grade increase at the end.
         o = []
-        if props['week']!=props['totalWeeks']:
-            # Standard increase in chance of grade_up
-            props_ = deepcopy(props)
-            props_['standardChances'][props_['student']]*=1.05
-            o.append((props_, prob))
-            return o
-        
-        # In last week, chance of natural grade increase.
-
-        # Chance of increase
-        props_, prob_ = deepcopy((props, prob))
-        props_['grades'][props_['student']] += 1
-        prob_ *= props_['standardChances'][props_['student']]
-        o.append((props_, prob_))
-
-        # Chance of no increase
-        props_, prob_ = deepcopy((props, prob))
-        prob_ *= (1 - props_['standardChances'][props_['student']])
-        o.append((props_, prob_))
-
+        # Standard increase in chance of grade_up
+        props_ = deepcopy(props)
+        props_['standardChances'][props_['student']]*=1.05
+        o.append((props_, prob))
         return o
+        
     
     # pos_lie and pos_hon actions
     def PosCompare(self, props, prob, action):
@@ -98,9 +90,15 @@ class TeacherProblem(MM_MDP):
 
         o = []
         # Chance of decreasing stress by 1 only.
-        props_ = deepcopy(props)
+        props_, prob_ = deepcopy((props, prob))
         TeacherProblem.__changeStress(props_, -1, props_['student'])
-        o.append((props_, prob))
+        prob_*= 0.7
+        o.append((props_, prob_))
+
+        props_, prob_ = deepcopy((props, prob))
+        prob_*= 0.3
+        o.append((props_, prob_))
+
         return o
 
     # neg_lie and neg_hon actions
@@ -113,42 +111,24 @@ class TeacherProblem(MM_MDP):
         props_, prob_ = deepcopy((props, prob))
         # Boost grade by 1
         TeacherProblem.__changeGrade(props_, 1, props_['student'])
+        TeacherProblem.__changeStress(props_, 1, props_['student'])
         # Boost chance of ending garde increase.
-        fracWeeksRemaining = (props_['totalWeeks']-props_['week']) / props_['totalWeeks']
-        props_['standardChances'][props_['student']]*= (1 + fracWeeksRemaining)*4
+        #fracWeeksRemaining = (props_['totalWeeks']-props_['week']) / props_['totalWeeks']
+        props_['standardChances'][props_['student']]*= 1.1
         prob_*=0.4
         o.append((props_, prob_))
 
 
         # OUTCOME 2: 60% CHANCE
-        # Boost grade by 1
+        # Nothing happens
         props_, prob_ = deepcopy((props, prob))
+        TeacherProblem.__changeStress(props_, 1, props_['student'])
         prob_*=0.6
         o.append((props_, prob_))
         return o
 
 
-    # Saying the student is worse than another.
-    # Chance of increasing stress level.
-    # Will improve grade.
-    def badCompare(self, props, prob):
-        o = []
-        # 1/2 chance of increasing stress and grade by 1 only.
-        props_, prob_ = deepcopy((props, prob))
-        props_['mental'][props_['student']]+=1
-        props_['grades'][props_['student']] += 1
-        prob_ *= 0.5
-        o.append((props_, prob_))
 
-        # 1/2 chance of increasing grade by 1 only.
-        props_, prob_ = deepcopy((props, prob))
-        props_['grades'][props_['student']] += 1
-        prob_ *= 0.5
-        o.append((props_, prob_))
-
-        return o
-
-        
     def NextSession(self, props, prob, action):
         # After each action, advance to next student.
         # After each student, advance to next week.
@@ -160,6 +140,24 @@ class TeacherProblem(MM_MDP):
             props['student']+=1
 
         return [(props, prob)]
+
+        # In last week, chance of natural grade increase.
+    def FinalSession(self, props, prob, action):
+        if props['week']!=props['totalWeeks']:
+            return [(props, prob)]
+            
+        o=[]
+        # Chance of increase
+        props_, prob_ = deepcopy((props, prob))
+        props_['grades'][props_['student']] += 1
+        prob_ *= props_['standardChances'][props_['student']]
+        o.append((props_, prob_))
+
+        # Chance of no increase
+        props_, prob_ = deepcopy((props, prob))
+        prob_ *= (1 - props_['standardChances'][props_['student']])
+        o.append((props_, prob_))
+        return o
 
 
     def stateString(self, state) -> str:
