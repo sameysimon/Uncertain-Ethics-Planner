@@ -1,8 +1,15 @@
-
-import pygraphviz
+visualise=True
+try:
+    import pygraphviz
+except ImportError:
+    print('PyGrahpViz not installed. Continuing without visualization.')
+    visualise=False
+    
 
 
 def VisualiseSolutionGraph(mdp, solution, fileName='SolutionGraph'):
+    if not visualise:
+        return
     stateNodes = solution.states
     stateActions = {}
     for s in stateNodes:
@@ -52,6 +59,8 @@ def VisualiseSolutionGraph(mdp, solution, fileName='SolutionGraph'):
     VisualiseGraph(stateNodes, stateActions, stateLabels, stateActionLabels, actionSuccessors, fileName)
 
 def VisualiseExplicitGraph(mdp,solution,fileName='ExplicitGraph'):
+    if not visualise:
+        return
     stateNodes = range(len(mdp.states))
     stateActions = [mdp.getActions(mdp.states[s]) for s in stateNodes]
     stateLabels=[]
@@ -102,7 +111,8 @@ def VisualiseExplicitGraph(mdp,solution,fileName='ExplicitGraph'):
 
 
 def VisualiseGraph(stateNodes,stateActions,stateLabels,stateActionLabels,actionSuccessors,fileName='file', showEmptyActions=False):
-    print()
+    if visualise==False:
+        return
     G = pygraphviz.AGraph(directed=True)
     G.layout()
     # Draw nodes/states

@@ -2,7 +2,6 @@ from EthicsPlanner.Planner.Solution import BestSubGraph
 from EthicsPlanner.Planner.Hypothetical import Retrospection
 import numpy as np
 import copy
-from tabulate import tabulate
 
 class HeuristicSolver:
     def isConverged(solver, mdp, bpsg:BestSubGraph):

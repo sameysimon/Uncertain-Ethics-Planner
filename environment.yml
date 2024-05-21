@@ -1,88 +1,40 @@
-name: EthicalPlanner
+name: UncertainEthicsEnvironment
 channels:
   - defaults
 dependencies:
   - blas=1.0=openblas
-  - boost-cpp=1.82.0=h48ca7d4_2
-  - bzip2=1.0.8=h80987f9_5
-  - c-ares=1.19.1=h80987f9_0
+  - bottleneck=1.3.7=py312ha86b861_0
+  - bzip2=1.0.8=h80987f9_6
   - ca-certificates=2024.3.11=hca03da5_0
-  - cairo=1.16.0=h302bd0f_5
-  - expat=2.5.0=h313beb8_0
-  - font-ttf-dejavu-sans-mono=2.37=hd3eb1b0_0
-  - font-ttf-inconsolata=2.001=hcb22688_0
-  - font-ttf-source-code-pro=2.030=hd3eb1b0_0
-  - font-ttf-ubuntu=0.83=h8b1ccd4_0
-  - fontconfig=2.14.1=hee714a5_2
-  - fonts-anaconda=1=h8fa9717_0
-  - fonts-conda-ecosystem=1=hd3eb1b0_0
-  - freetype=2.12.1=h1192e45_0
-  - fribidi=1.0.10=h1a28f6b_0
-  - gdk-pixbuf=2.42.10=h80987f9_0
-  - gettext=0.21.0=h13f89a0_1
-  - giflib=5.2.1=h80987f9_3
-  - glib=2.78.4=h313beb8_0
-  - glib-tools=2.78.4=h313beb8_0
-  - graphite2=1.3.14=hc377ac9_1
-  - graphviz=2.50.0=hf331ead_1
-  - gts=0.7.6=hde733a8_3
-  - harfbuzz=4.3.0=he9eebac_2
-  - icu=73.1=h313beb8_0
-  - jpeg=9e=h80987f9_1
-  - krb5=1.20.1=hf3e1bf2_1
-  - lcms2=2.12=hba8e193_0
-  - lerc=3.0=hc377ac9_0
-  - libboost=1.82.0=h0bc93f9_2
-  - libcurl=8.5.0=h3e2b118_0
+  - expat=2.6.2=h313beb8_0
+  - iniconfig=1.1.1=pyhd3eb1b0_0
   - libcxx=14.0.6=h848a8c0_0
-  - libdeflate=1.17=h80987f9_1
-  - libedit=3.1.20230828=h80987f9_0
-  - libev=4.33=h1a28f6b_1
-  - libffi=3.4.4=hca03da5_0
-  - libgd=2.3.3=h313beb8_3
+  - libffi=3.4.4=hca03da5_1
   - libgfortran=5.0.0=11_3_0_hca03da5_28
   - libgfortran5=11.3.0=h009349e_28
-  - libglib=2.78.4=h0a96307_0
-  - libiconv=1.16=h1a28f6b_2
-  - libnghttp2=1.57.0=h62f6fdd_0
   - libopenblas=0.3.21=h269037a_0
-  - libpng=1.6.39=h80987f9_0
-  - librsvg=2.54.4=hb3bd4c3_3
-  - libssh2=1.10.0=h02f6b3c_2
-  - libtiff=4.5.1=h313beb8_0
-  - libtool=2.4.6=h313beb8_1009
-  - libwebp=1.2.4=ha3663a8_1
-  - libwebp-base=1.2.4=h80987f9_1
-  - libxml2=2.10.4=h0dcf63f_1
   - llvm-openmp=14.0.6=hc6e5704_0
-  - lz4-c=1.9.4=h313beb8_0
   - ncurses=6.4=h313beb8_0
-  - nspr=4.35=h313beb8_0
-  - nss=3.89.1=h313beb8_0
+  - numexpr=2.8.7=py312h0f3ea24_0
   - numpy=1.26.4=py312h7f4fdc5_0
   - numpy-base=1.26.4=py312he047099_0
-  - openjpeg=2.3.0=h7a6adac_2
-  - openssl=3.0.13=h1a28f6b_0
-  - pango=1.50.7=h7271ec9_0
-  - pcre2=10.42=hb066dcc_0
-  - pip=23.3.1=py312hca03da5_0
-  - pixman=0.40.0=h1a28f6b_0
-  - poppler=22.12.0=h52f4003_3
-  - poppler-data=0.4.11=hca03da5_1
-  - pygraphviz=1.9=py312h80987f9_1
+  - openssl=3.0.13=h1a28f6b_1
+  - packaging=23.2=py312hca03da5_0
+  - pandas=2.2.1=py312hd77ebd4_0
+  - pip=24.0=py312hca03da5_0
+  - pluggy=1.0.0=py312hca03da5_1
+  - pytest=7.4.0=py312hca03da5_0
   - python=3.12.2=h99e199e_0
+  - python-dateutil=2.9.0post0=py312hca03da5_0
+  - python-tzdata=2023.3=pyhd3eb1b0_0
+  - pytz=2024.1=py312hca03da5_0
   - readline=8.2=h1a28f6b_0
-  - setuptools=68.2.2=py312hca03da5_0
-  - sqlite=3.41.2=h80987f9_0
-  - tk=8.6.12=hb8d0fd4_0
+  - setuptools=69.5.1=py312hca03da5_0
+  - six=1.16.0=pyhd3eb1b0_1
+  - sqlite=3.45.3=h80987f9_0
+  - tk=8.6.14=h6ba3021_0
   - tzdata=2024a=h04d1e81_0
-  - wheel=0.41.2=py312hca03da5_0
-  - xz=5.4.6=h80987f9_0
-  - zlib=1.2.13=h5a0b063_0
-  - zstd=1.5.5=hd90d995_0
-  - pip:
-      - iniconfig==2.0.0
-      - packaging==24.0
-      - pluggy==1.4.0
-      - pytest==8.1.1
-prefix: /opt/miniconda3/envs/EthicalPlanner
+  - wheel=0.43.0=py312hca03da5_0
+  - xz=5.4.6=h80987f9_1
+  - zlib=1.2.13=h18a0788_1
+prefix: /opt/miniconda3/envs/TestPlanner
