@@ -5,7 +5,6 @@ from EthicsPlanner.Planner.MDP_Solvers.iLAOStar import HeuristicSolver
 
 import numpy as np
 import copy
-from tabulate import tabulate
 
 
 class Solver(HeuristicSolver):
