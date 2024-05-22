@@ -84,3 +84,15 @@ class MDP(ABC):
             newStates.append(self.states[i])
         return newStates
 
+
+
+    def isGoal(self, state:State):
+        # Whether a state-action-state transition is a goal.
+        # For MDPs, always False.
+        return False
+
+    def getCost(self, successor:Successor):
+        # The real cost of a state-action-state transition
+        # For MDPs, always 0.
+        # For MDPs, always at least -1.
+        return 0

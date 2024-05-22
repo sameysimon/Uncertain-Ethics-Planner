@@ -172,3 +172,7 @@ class TeacherProblem(MM_MDP):
                 grade=p['grades'][idx], 
                 stress=p['stress'][idx])
         return s
+
+
+    def getCost(self, successor):
+        return -1
